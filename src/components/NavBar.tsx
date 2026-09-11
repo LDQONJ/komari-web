@@ -28,7 +28,7 @@ const NavBar = () => {
             className="text-base font-bold whitespace-nowrap"
             style={{ color: "var(--accent-4)" }}
           >
-            Komari Monitor
+            LDQ Monitor
           </span>
         </div>
       </div>

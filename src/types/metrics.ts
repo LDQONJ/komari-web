@@ -40,6 +40,11 @@ export type PublicPingTask = {
   interval?: number;
   clients?: string[];
   default_on?: boolean;
+  is_reverse?: boolean;
+  reverse_source?: string;
+  reverse_target?: string;
+  port?: number;
+  ip_preference?: string;
 };
 
 export type PingMetricStat = {

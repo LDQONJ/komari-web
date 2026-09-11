@@ -7,6 +7,12 @@ export interface PingTask {
   interval?: number;
   target?: string;
   type?: string;
+  name?: string;
+  is_reverse?: boolean;
+  reverse_source?: string;
+  reverse_target?: string;
+  port?: number;
+  ip_preference?: string;
   [property: string]: any;
 }
 

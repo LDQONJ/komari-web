@@ -105,6 +105,10 @@ const ServerRow: React.FC<{
           default_on: task.default_on || false,
           clients: Array.from(current),
           interval: task.interval,
+          is_reverse: task.is_reverse,
+          reverse_source: task.reverse_source,
+          port: task.port,
+          ip_preference: task.ip_preference,
         };
       });
 

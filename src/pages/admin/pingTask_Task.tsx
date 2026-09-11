@@ -27,6 +27,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
+  Badge,
   Button,
   Checkbox,
   Dialog,
@@ -197,7 +198,35 @@ const Row = ({
     clients: task.clients || [],
     default_on: task.default_on || false,
     interval: task.interval || 60,
+    is_reverse: task.is_reverse || false,
+    reverse_source: task.reverse_source || "",
+    port: task.port || 22,
+    ip_preference: (task.ip_preference as "ipv4" | "ipv6") || "ipv4",
   });
+
+  const sortedNodes = React.useMemo(() => {
+    return [...nodeDetail].sort((a, b) => {
+      const wa = a.weight ?? 0;
+      const wb = b.weight ?? 0;
+      if (wa !== wb) return wa - wb;
+      return a.name.localeCompare(b.name);
+    });
+  }, [nodeDetail]);
+
+  React.useEffect(() => {
+    setForm({
+      name: task.name || "",
+      type: task.type || "icmp",
+      target: task.target || "",
+      clients: task.clients || [],
+      default_on: task.default_on || false,
+      interval: task.interval || 60,
+      is_reverse: task.is_reverse || false,
+      reverse_source: task.reverse_source || "",
+      port: task.port || 22,
+      ip_preference: (task.ip_preference as "ipv4" | "ipv6") || "ipv4",
+    });
+  }, [task, editOpen]);
 
   const submitEdit = (newForm: typeof form) => {
     if (!newForm.default_on && newForm.clients.length === 0) {
@@ -205,6 +234,11 @@ const Row = ({
       return;
     }
     setEditSaving(true);
+    const isRev = Boolean(task.is_reverse || newForm.is_reverse);
+    const targetVal = isRev
+      ? (newForm.type === "tcp" ? `:${newForm.port || 22}` : "icmp")
+      : newForm.target;
+
     fetch("/api/admin/ping/edit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -214,10 +248,14 @@ const Row = ({
             id: task.id,
             name: newForm.name,
             type: newForm.type,
-            target: newForm.target,
+            target: targetVal,
             default_on: newForm.default_on,
             clients: newForm.clients,
             interval: newForm.interval,
+            is_reverse: isRev,
+            reverse_source: newForm.reverse_source || task.reverse_source,
+            port: newForm.port || task.port || 22,
+            ip_preference: newForm.ip_preference || task.ip_preference || "ipv4",
           },
         ],
       }),
@@ -297,7 +335,16 @@ const Row = ({
           <MenuIcon size={isMobile ? 18 : 16} color={"var(--gray-8)"} />
         </div>
       </TableCell>
-      <TableCell>{task.name}</TableCell>
+      <TableCell>
+        <Flex gap="1" align="center">
+          <span>{task.name}</span>
+          {task.is_reverse && (
+            <Badge size="1" color="indigo" variant="soft">
+              {t("ping.reverse_badge", "反向")}
+            </Badge>
+          )}
+        </Flex>
+      </TableCell>
       <TableCell>
         <Flex gap="2" align="center">
           {task.clients && task.clients.length > 0
@@ -336,7 +383,20 @@ const Row = ({
           </NodeSelectorDialog>
         </Flex>
       </TableCell>
-      <TableCell>{task.target}</TableCell>
+      <TableCell>
+        {task.is_reverse ? (
+          <span className="text-xs text-indigo-11">
+            {t("ping.reverse_from", {
+              source:
+                nodeDetail.find((node) => node.uuid === task.reverse_source)
+                  ?.name || task.reverse_source || "Probe",
+            })}
+            {task.type === "tcp" && task.port ? ` :${task.port}` : ""}
+          </span>
+        ) : (
+          task.target
+        )}
+      </TableCell>
       <TableCell>{task.type}</TableCell>
       <TableCell>{task.interval}</TableCell>
       <TableCell className="flex items-center gap-2">
@@ -373,18 +433,78 @@ const Row = ({
                 <Select.Content>
                   <Select.Item value="icmp">ICMP</Select.Item>
                   <Select.Item value="tcp">TCP</Select.Item>
-                  <Select.Item value="http">HTTP</Select.Item>
+                  {!task.is_reverse && <Select.Item value="http">HTTP</Select.Item>}
                 </Select.Content>
               </Select.Root>
-              <label>{t("ping.target")}</label>
-              <TextField.Root
-                value={form.target}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, target: e.target.value }))
-                }
-                required
-              />
-              <label>{t("common.server")}</label>
+
+              {task.is_reverse ? (
+                <>
+                  <label>{t("ping.reverse_source", "探针服务器 (发起探测)")}</label>
+                  <Select.Root
+                    value={form.reverse_source}
+                    onValueChange={(v) =>
+                      setForm((f) => ({ ...f, reverse_source: v }))
+                    }
+                  >
+                    <Select.Trigger />
+                    <Select.Content>
+                      {sortedNodes.map((n) => (
+                        <Select.Item key={n.uuid} value={n.uuid}>
+                          {n.name}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
+
+                  {form.type === "tcp" && (
+                    <>
+                      <label>{t("ping.target_port", "目标端口")}</label>
+                      <TextField.Root
+                        type="number"
+                        value={form.port}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            port: Number(e.target.value),
+                          }))
+                        }
+                        required
+                      />
+                    </>
+                  )}
+
+                  <label>{t("ping.ip_preference", "IP 解析偏好")}</label>
+                  <Select.Root
+                    value={form.ip_preference}
+                    onValueChange={(v) =>
+                      setForm((f) => ({ ...f, ip_preference: v as any }))
+                    }
+                  >
+                    <Select.Trigger />
+                    <Select.Content>
+                      <Select.Item value="ipv4">IPv4 优先</Select.Item>
+                      <Select.Item value="ipv6">IPv6 优先</Select.Item>
+                    </Select.Content>
+                  </Select.Root>
+                </>
+              ) : (
+                <>
+                  <label>{t("ping.target")}</label>
+                  <TextField.Root
+                    value={form.target}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, target: e.target.value }))
+                    }
+                    required
+                  />
+                </>
+              )}
+
+              <label>
+                {task.is_reverse
+                  ? t("ping.reverse_targets", "受测目标服务器")
+                  : t("common.server")}
+              </label>
               <Flex direction="column" gap="2">
                 <NodeSelectorDialog
                   value={form.clients}

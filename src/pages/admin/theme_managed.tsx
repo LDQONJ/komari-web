@@ -39,7 +39,10 @@ interface ThemeConfigResponse {
 const ThemeManaged: React.FC = () => {
   const { publicInfo, refresh } = usePublicInfo();
   const theme = publicInfo?.theme;
-  const themeSettings = publicInfo?.theme_settings || {}; // 当前值
+  const themeSettingsStr = useMemo(
+    () => JSON.stringify(publicInfo?.theme_settings || {}),
+    [publicInfo?.theme_settings],
+  );
   const { t, i18n } = useTranslation();
 
   const currentLanguage =
@@ -56,6 +59,7 @@ const ThemeManaged: React.FC = () => {
 
   // 拉取主题配置
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       if (!theme) {
         setFields([]);
@@ -70,6 +74,7 @@ const ThemeManaged: React.FC = () => {
         });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data: ThemeConfigResponse = await resp.json();
+        if (cancelled) return;
         const configuration = data.configuration;
         if (
           getThemeConfigurationType(configuration) !==
@@ -82,31 +87,41 @@ const ThemeManaged: React.FC = () => {
         }
         const ds = configuration.data;
         setFields(ds);
+        let savedSettings: Record<string, any> = {};
+        try {
+          savedSettings = JSON.parse(themeSettingsStr);
+        } catch {}
         // 初始值：优先 publicInfo.theme_settings，其次 default
         const init: Record<string, any> = {};
         ds.forEach((f) => {
           if (f.type !== "title" && f.type !== "textbox" && f.key) {
             const selection = f.type === "nodes" || f.type === "pingtasks";
-            const saved = themeSettings?.[f.key];
+            const saved = savedSettings?.[f.key];
             init[f.key] =
               saved !== undefined
                 ? selection
-                  ? JSON.stringify(saved)
+                  ? typeof saved === "string"
+                    ? saved
+                    : JSON.stringify(saved)
                   : saved
-                : f.default ??
-                  (selection ? "[]" : undefined);
+                : (f.default ?? (selection ? "[]" : undefined));
           }
         });
         setValues(init);
       } catch (e: any) {
-        setError(e.message || t("theme.load_config_failed"));
+        if (!cancelled) setError(e.message || t("theme.load_config_failed"));
       } finally {
-        setLoading(false);
-        setFirstLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setFirstLoading(false);
+        }
       }
     }
     load();
-  }, [theme, themeSettings, t]);
+    return () => {
+      cancelled = true;
+    };
+  }, [theme, themeSettingsStr, t]);
 
   const handleValueChange = (key: string, val: any) => {
     setValues((v) => ({ ...v, [key]: val }));

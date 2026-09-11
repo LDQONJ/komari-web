@@ -681,7 +681,19 @@
     "target": "Target",
     "task": "Task",
     "task_view": "Task View",
-    "title": "Latency"
+    "title": "Latency",
+    "add_reverse": "Reverse Ping",
+    "add_reverse_title": "Add Reverse Latency Monitor",
+    "reverse_description": "Use a specified probe server (e.g. home broadband) to reversely probe selected target nodes, and assign the latency metrics directly to each target node.",
+    "reverse_name_placeholder": "e.g., Home Latency",
+    "reverse_source": "Probe Server (Executes Ping)",
+    "reverse_source_required": "Please select a probe server",
+    "reverse_targets": "Target Servers (Data Assigned To)",
+    "reverse_targets_required": "Please select at least one target server",
+    "target_port": "Target Port",
+    "ip_preference": "IP Preference",
+    "reverse_badge": "Reverse",
+    "reverse_from": "From {{source}}"
   },
   "plugin": {
     "config": "Configuration",

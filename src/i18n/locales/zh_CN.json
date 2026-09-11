@@ -681,7 +681,19 @@
     "target": "目标",
     "task": "任务",
     "task_view": "任务视图",
-    "title": "延迟监测"
+    "title": "延迟监测",
+    "add_reverse": "反向监测",
+    "add_reverse_title": "添加反向延迟监测",
+    "reverse_description": "由指定的探针服务器（如家宽节点）反向探测所选的其它节点，并将探测结果直接记录在受测目标节点名下。",
+    "reverse_name_placeholder": "例如：家宽延迟 或 Home 延迟",
+    "reverse_source": "探针服务器 (发起探测)",
+    "reverse_source_required": "请选择执行探测的探针服务器",
+    "reverse_targets": "受测目标服务器 (数据归属)",
+    "reverse_targets_required": "请至少选择一台受测目标服务器",
+    "target_port": "目标端口",
+    "ip_preference": "IP 解析偏好",
+    "reverse_badge": "反向",
+    "reverse_from": "来自 {{source}}"
   },
   "plugin": {
     "config": "配置",

@@ -84,9 +84,9 @@ const ThemePage = () => {
     loading: settingsLoading,
     refetch: refetchSettings,
   } = useSettings();
-  const currentTheme = settings?.theme;
-  const navigate = useNavigate();
   const { publicInfo, refresh: refreshPublicInfo } = usePublicInfo();
+  const currentTheme = settings?.theme || publicInfo?.theme || "default";
+  const navigate = useNavigate();
   const { refreshNavigation } = useAdminNavigation();
   const [activeThemeHasConfig, setActiveThemeHasConfig] = useState(false);
   const language = i18n.resolvedLanguage || i18n.language || "";
@@ -99,7 +99,7 @@ const ThemePage = () => {
   useEffect(() => {
     let cancelled = false;
     async function check() {
-      const themeShort = currentTheme || publicInfo?.theme;
+      const themeShort = currentTheme || publicInfo?.theme || "default";
       if (!themeShort) {
         setActiveThemeHasConfig(false);
         return;
@@ -137,7 +137,7 @@ const ThemePage = () => {
     };
   }, [currentTheme, publicInfo?.theme]);
 
-  const loading = themesLoading || settingsLoading || !currentTheme;
+  const loading = themesLoading || (settingsLoading && !settings?.theme && !publicInfo?.theme);
   // 获取主题列表
   const fetchThemes = async () => {
     try {

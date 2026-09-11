@@ -24,6 +24,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { TaskView } from "./pingTask_Task";
 import { ServerView } from "./pingTask_Server";
+import { ReversePingDialog } from "./ReversePingDialog";
 
 const PingTask = () => {
   return (
@@ -51,7 +52,10 @@ const InnerLayout = () => {
     <Flex direction="column" gap="4" className="km-page-admin-pingtask p-4">
       <div className="flex justify-between items-center">
         <label className="text-2xl font-bold">{t("ping.title")}</label>
-        <AddButton />
+        <Flex gap="2" align="center">
+          <ReversePingDialog />
+          <AddButton />
+        </Flex>
       </div>
       <Tabs.Root defaultValue="task" className="km-pingtask-nav">
         <Tabs.List>
