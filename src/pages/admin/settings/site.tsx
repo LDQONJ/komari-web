@@ -135,6 +135,18 @@ export default function SiteSettings() {
         }}
       />
       <SettingCardSwitch
+        title={t("settings.site.ssrf_protection_enabled")}
+        description={t("settings.site.ssrf_protection_enabled_description")}
+        defaultChecked={settings.ssrf_protection_enabled ?? false}
+        onChange={async (checked) => {
+          await updateSettingsWithToast(
+            { ssrf_protection_enabled: checked },
+            t,
+          );
+        }}
+        className="km-setting-card"
+      />
+      <SettingCardSwitch
         title={t("settings.site.send_ip_addr_to_guest")}
         description={t("settings.site.send_ip_addr_to_guest_description")}
         defaultChecked={settings.send_ip_addr_to_guest}

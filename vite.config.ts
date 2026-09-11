@@ -66,7 +66,7 @@ export default defineConfig(({ mode }) => {
       }),
       VitePWA({
         registerType: "autoUpdate",
-        includeAssets: ["favicon.ico", "assets/pwa-icon.png"],
+        includeAssets: ["favicon.ico", "assets/pwa-icon.webp"],
         manifest: {
           name: "Komari Monitor",
           short_name: "Komari Monitor",
@@ -78,21 +78,22 @@ export default defineConfig(({ mode }) => {
           start_url: base,
           icons: [
             {
-              src: "${base}assets/pwa-icon.png",
+              src: "${base}assets/pwa-icon.webp",
               sizes: "192x192",
-              type: "image/png",
+              type: "image/webp",
               purpose: "maskable any",
             },
             {
-              src: "${base}assets/pwa-icon.png",
+              src: "${base}assets/pwa-icon.webp",
               sizes: "512x512",
-              type: "image/png",
+              type: "image/webp",
               purpose: "maskable any",
             },
           ],
         },
         workbox: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+          maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
           navigateFallbackDenylist: [
             /^\/database-recovery(?:\/|$)/,
             /^\/admin\/(?:database-migration|update\/1\.2\.7|metric-store\/restructure)(?:\/|$)/,
@@ -125,9 +126,16 @@ export default defineConfig(({ mode }) => {
     define: {
       __BUILD_TIME__: JSON.stringify(buildTime),
     },
-    resolve: {
-      alias: [
-        { find: "@", replacement: path.resolve(__dirname, "./src") },
+      resolve: {
+        alias: [
+          { find: "@", replacement: path.resolve(__dirname, "./src") },
+          {
+            find: /^monaco-editor-codicon\.css$/,
+            replacement: path.resolve(
+              __dirname,
+              "node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css",
+            ),
+          },
         // Force xterm to use the CJS build to avoid a rollup bug where `||=` in
         // xterm.mjs is incorrectly lowered to `void 0||(i={})` with an undeclared `i`,
         // causing `ReferenceError: i is not defined` at requestMode when vi sends DECRQM sequences.

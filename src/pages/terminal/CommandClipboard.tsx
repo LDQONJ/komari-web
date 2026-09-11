@@ -21,7 +21,15 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-const CommandClipboardPanel = ({ ...props }: { [key: string]: any }) => {
+// 命令剪贴板面板
+const CommandClipboardPanel = ({
+  showHeader = true,
+  ...props
+}: {
+  showHeader?: boolean;
+  [key: string]: any;
+}) => {
+  // 剪贴板列表布局
   const InnerLayout = () => {
     const { t } = useTranslation();
     const { commands, loading, error } = useCommandClipboard();
@@ -29,7 +37,13 @@ const CommandClipboardPanel = ({ ...props }: { [key: string]: any }) => {
       return <Loading />;
     }
     if (error) {
-      return <div>Error loading commands: {error.message}</div>;
+      return (
+        <div>
+          {t("command_clipboard.error_loading", {
+            message: error.message,
+          })}
+        </div>
+      );
     }
     return (
       <Flex
@@ -38,14 +52,15 @@ const CommandClipboardPanel = ({ ...props }: { [key: string]: any }) => {
         gap="2"
         overflowX={"clip"}
         overflowY={"scroll"}
-        style={{ height: "100%" }}
-        className="km-command-clipboard km-command-clipboard-list command-clipboard-container"
+        className="km-command-clipboard km-command-clipboard-list command-clipboard-container h-full"
       >
-        <Flex>
-          <label className="text-lg font-semibold">
-            {t("command_clipboard.title")}
-          </label>
-        </Flex>
+        {showHeader && (
+          <Flex>
+            <label className="text-lg font-semibold">
+              {t("command_clipboard.title")}
+            </label>
+          </Flex>
+        )}
         <Flex justify="between" align="center" className="mr-2">
           <AddButton />
           <LanguageSwitch />
@@ -66,6 +81,7 @@ const CommandClipboardPanel = ({ ...props }: { [key: string]: any }) => {
   );
 };
 
+// 新增命令按钮与表单
 const AddButton = () => {
   const { t } = useTranslation();
   const [isOpen, setOpen] = React.useState(false);
@@ -86,7 +102,11 @@ const AddButton = () => {
       setOpen(false);
       toast.success(t("common.added_successfully"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "An error occurred");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("command_clipboard.error_generic"),
+      );
     } finally {
       setAdding(false);
     }
@@ -94,7 +114,7 @@ const AddButton = () => {
   return (
     <Dialog.Root open={isOpen} onOpenChange={setOpen}>
       <Dialog.Trigger>
-        <IconButton aria-label="Add Command">
+        <IconButton aria-label={t("command_clipboard.add")}>
           <PlusIcon size="16" />
         </IconButton>
       </Dialog.Trigger>
@@ -129,7 +149,7 @@ const AddButton = () => {
   );
 };
 
-// DeleteButton: 删除命令
+// 删除命令按钮与确认对话框
 const DeleteButton = ({ id }: { id: number }) => {
   const { t } = useTranslation();
   const { deleteCommand } = useCommandClipboard();
@@ -142,7 +162,11 @@ const DeleteButton = ({ id }: { id: number }) => {
       toast.success(t("common.deleted_successfully"));
       setOpen(false);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "An error occurred");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("command_clipboard.error_generic"),
+      );
     } finally {
       setDeleting(false);
     }
@@ -150,7 +174,7 @@ const DeleteButton = ({ id }: { id: number }) => {
   return (
     <Dialog.Root open={isOpen} onOpenChange={setOpen}>
       <Dialog.Trigger>
-        <IconButton aria-label="Delete Command" color="red">
+        <IconButton aria-label={t("command_clipboard.delete")} color="red">
           <Trash2Icon size="16" />
         </IconButton>
       </Dialog.Trigger>
@@ -170,7 +194,7 @@ const DeleteButton = ({ id }: { id: number }) => {
   );
 };
 
-// EditButton: 编辑命令
+// 编辑命令按钮与表单
 const EditButton = ({ id, name, text, remark, weight }: CommandClipboard) => {
   const { t } = useTranslation();
   const { updateCommand } = useCommandClipboard();
@@ -196,7 +220,11 @@ const EditButton = ({ id, name, text, remark, weight }: CommandClipboard) => {
       setOpen(false);
       toast.success(t("common.updated_successfully"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "An error occurred");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("command_clipboard.error_generic"),
+      );
     } finally {
       setUpdating(false);
     }
@@ -204,7 +232,7 @@ const EditButton = ({ id, name, text, remark, weight }: CommandClipboard) => {
   return (
     <Dialog.Root open={isOpen} onOpenChange={setOpen}>
       <Dialog.Trigger>
-        <IconButton aria-label="Edit Command">
+        <IconButton aria-label={t("command_clipboard.edit")}>
           <Edit2Icon size="16" />
         </IconButton>
       </Dialog.Trigger>
@@ -240,6 +268,7 @@ const EditButton = ({ id, name, text, remark, weight }: CommandClipboard) => {
   );
 };
 
+// 单条命令卡片
 const CommandCard = (item: CommandClipboard) => {
   const { t } = useTranslation();
   const { sendCommand } = useTerminal();
@@ -253,7 +282,7 @@ const CommandCard = (item: CommandClipboard) => {
               {t("common.execute")}
             </Button>
           </Flex>
-          <Code className="command-text" style={{ whiteSpace: "pre-wrap" }}>
+          <Code className="command-text whitespace-pre-wrap">
             {item.text.length > 300
               ? item.text.substring(0, 300) +
                 `\n...(${t("common.have_been_omitted", {
