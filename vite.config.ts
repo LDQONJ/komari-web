@@ -92,12 +92,11 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+          // HTML is rendered dynamically with theme, plugin, and site settings.
+          // Cache only immutable assets so every navigation reaches the server.
+          globPatterns: ["**/*.{js,css,ico,png,svg}"],
           maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
-          navigateFallbackDenylist: [
-            /^\/database-recovery(?:\/|$)/,
-            /^\/admin\/(?:database-migration|update\/1\.2\.7|metric-store\/restructure)(?:\/|$)/,
-          ],
+          navigateFallback: null,
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/api\./i,
