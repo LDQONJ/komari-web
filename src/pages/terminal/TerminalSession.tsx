@@ -9,10 +9,10 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button, Text, TextField } from "@radix-ui/themes";
 import { ShieldCheck } from "lucide-react";
-import type { XtermjsSettings } from "@/hooks/useXtermjsSettings";
 import {
-  isTransparentBackground,
-} from "@/hooks/useXtermjsSettings";
+  DEFAULT_TERMINAL_OPTIONS,
+  DEFAULT_TERMINAL_PADDING,
+} from "./terminalDefaults";
 
 export interface TerminalSessionApi {
   terminal: Terminal;
@@ -25,7 +25,8 @@ export interface TerminalSessionApi {
 interface TerminalSessionProps {
   uuid: string;
   active: boolean;
-  settings: XtermjsSettings;
+  fontSize?: number;
+  padding?: number;
   twoFaEnabled: boolean;
   disconnectMessage: string;
   onApiChange: (api: TerminalSessionApi | null) => void;
@@ -43,7 +44,8 @@ const normalizePaste = (value: string) => value.replace(/\r?\n/g, "\r");
 const TerminalSession = ({
   uuid,
   active,
-  settings,
+  fontSize = DEFAULT_TERMINAL_OPTIONS.fontSize,
+  padding = DEFAULT_TERMINAL_PADDING,
   twoFaEnabled,
   disconnectMessage,
   onApiChange,
@@ -86,10 +88,7 @@ const TerminalSession = ({
       return;
     }
 
-    const snapshot = settings;
-    const baseTheme = snapshot.terminalOptions.theme || {};
     const themeWithSelection = {
-      ...baseTheme,
       selectionBackground: "#ffffff",
       selectionForeground: "#000000",
       selectionInactiveBackground: "#ffffff",
@@ -99,26 +98,15 @@ const TerminalSession = ({
     };
 
     const terminalOptions: Partial<ITerminalOptions> = {
-      cursorBlink: snapshot.terminalOptions.cursorBlink,
+      ...DEFAULT_TERMINAL_OPTIONS,
+      fontSize,
       cursorStyle: "bar",
       cursorInactiveStyle: "bar",
       cursorWidth: 2,
       allowProposedApi: true,
       overviewRuler: { width: 4 },
-      convertEol: snapshot.terminalOptions.convertEol,
-      fontFamily: snapshot.terminalOptions.fontFamily,
-      fontSize: snapshot.terminalOptions.fontSize,
-      macOptionIsMeta: snapshot.terminalOptions.macOptionIsMeta,
-      scrollback: snapshot.terminalOptions.scrollback,
       theme: themeWithSelection,
     };
-
-    if (
-      snapshot.transparentBackground ||
-      isTransparentBackground(snapshot.terminalOptions.theme?.background)
-    ) {
-      terminalOptions.allowTransparency = true;
-    }
 
     const term = new Terminal(terminalOptions);
     const fitAddon = new FitAddon();
@@ -514,10 +502,10 @@ const TerminalSession = ({
       }
       term.dispose();
     };
-  }, [twoFaEnabled, settings, toastId, t, uuid]);
+  }, [fontSize, twoFaEnabled, toastId, t, uuid]);
 
   const style = {
-    "--xterm-padding": `${settings.terminalPadding}px`,
+    "--xterm-padding": `${padding}px`,
   } as CSSProperties;
 
   return (

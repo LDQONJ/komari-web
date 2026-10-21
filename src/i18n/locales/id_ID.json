@@ -78,6 +78,8 @@
       "tokenPlaceholder": "Masukkan token",
       "trafficLimit": "Batas Lalu Lintas",
       "trafficLimit_description": "Digunakan untuk menampilkan progres lalu lintas di beranda. Atur ke 0 B untuk menonaktifkan.",
+      "trafficLimitInvalid": "Nilai tidak dapat diparsing. Format yang didukung: 100 GB / 512 MiB / 2T (maks PB).",
+      "trafficLimitInvalidSave": "Format batas trafik tidak dapat diparsing. Perbaiki terlebih dahulu.",
       "trafficLimitType": "Jenis Batas Lalu Lintas",
       "trafficLimitType_down": "Unduh Saja",
       "trafficLimitType_max": "Maksimum",
@@ -257,14 +259,6 @@
     "violet": "Violet",
     "yellow": "Kuning"
   },
-  "command_clipboard": {
-    "add": "Tambah Perintah",
-    "delete": "Hapus Perintah",
-    "edit": "Edit Perintah",
-    "error_generic": "Terjadi kesalahan",
-    "error_loading": "Gagal memuat perintah: {{message}}",
-    "title": "Papan Klip Perintah"
-  },
   "common": {
     "about": "Tentang",
     "action": "Aksi",
@@ -410,6 +404,54 @@
     "uploadTotal": "Unggah kumulatif",
     "viewChart": "Lihat grafik 24 jam",
     "yesterday": "Kemarin"
+  },
+  "dashboardLayout": {
+    "cancelled": "Pindah dibatalkan",
+    "capacityCount": "Kapasitas konfigurasi {{count}} node",
+    "cards": "Pilih kartu",
+    "compact": "Standar",
+    "cores": "Inti CPU",
+    "customize": "Sesuaikan",
+    "dropped": "Kartu telah diletakkan",
+    "editing": "Sunting tata letak",
+    "empty": "Belum ada kartu",
+    "full": "Seluruh baris",
+    "height": "Tinggi kartu",
+    "hide": "Sembunyikan {{name}}",
+    "keyboard": "Tekan spasi untuk mengangkat kartu, gunakan tombol panah untuk memindahkan, tekan spasi lagi untuk meletakkan, Escape untuk membatalkan.",
+    "loadFailed": "Gagal memuat tata letak, coba lagi",
+    "move": "Pindahkan {{name}}",
+    "moved": "{{name}} dipindahkan ke posisi {{position}}",
+    "normal": "Standar",
+    "notifications": "Konfigurasi notifikasi",
+    "picked": "{{name}} diangkat",
+    "ram": "Total memori",
+    "reset": "Kembalikan tata letak default",
+    "saved": "Tata letak dasbor disimpan",
+    "saveFailed": "Gagal menyimpan, tata letak belum disimpan, silakan coba lagi.",
+    "selection": "{{count}} kartu dipilih",
+    "servers": "Manajemen server",
+    "short": "Ringkas",
+    "storage": "Total disk",
+    "tall": "Tinggi",
+    "terminal": "Meja kerja jarak jauh",
+    "visibleNodes": "Jumlah node yang ditampilkan",
+    "visibleNodesCount": "Tampilkan {{count}} node",
+    "wide": "Lebar",
+    "widgets": {
+      "cpu": "Peringkat penggunaan CPU",
+      "database": "Penggunaan database",
+      "disk": "Tekanan disk",
+      "expiry": "Pengingat kedaluwarsa",
+      "memory": "Peringkat penggunaan memori",
+      "overview": "Ringkasan online",
+      "ping": "Kualitas jaringan",
+      "resources": "Kapasitas sumber daya",
+      "shortcuts": "Aksi cepat",
+      "traffic": "Lalu lintas 24 jam"
+    },
+    "width": "Lebar kartu",
+    "workspace": "Dasbor saya"
   },
   "database_migration": {
     "after": "Setelah migrasi",
@@ -632,12 +674,6 @@
     "welcome_title": "Selamat datang di Komari"
   },
   "just_now": "Baru saja",
-  "loadAlert": {
-    "metric": "Metrik",
-    "ratio": "Rasio",
-    "threshold_placeholder": "'80' untuk 80%",
-    "title": "Peringatan Beban"
-  },
   "loading": "Memuat",
   "log": {
     "title": "Log"
@@ -648,6 +684,7 @@
     "login_with_github": "Masuk dengan GitHub",
     "password": "Kata Sandi",
     "password_placeholder": "Masukkan kata sandi",
+    "request_failed": "Login gagal. Silakan coba lagi.",
     "title": "Masuk",
     "two_factor": "Autentikasi Dua Faktor",
     "username": "Nama Pengguna"
@@ -752,9 +789,6 @@
     "general": {
       "title": "Peristiwa Umum"
     },
-    "load": {
-      "title": "Beban"
-    },
     "offline": {
       "cooldown": "Masa Tunda",
       "full_title": "Konfigurasi Peringatan Offline",
@@ -766,6 +800,56 @@
       "title": "Mati"
     },
     "title": "Notifikasi"
+  },
+  "notificationUpgrade": {
+    "acknowledge": "Mengerti",
+    "configure": "Buka Pengaturan",
+    "description": "Anda telah diperbarui dari versi di bawah 1.6.0. Terjadi perubahan yang tidak kompatibel pada saluran notifikasi, sehingga perlu dikonfigurasi ulang. Silakan buka pengaturan saluran notifikasi, konfigurasi ulang, dan uji untuk memastikan peringatan terkirim dengan benar.",
+    "title": "Perubahan Tidak Kompatibel pada Saluran Notifikasi"
+  },
+  "onboarding": {
+    "finish": "Mengerti",
+    "install": {
+      "action": "Tambah Node",
+      "add_description": "Klik di sini untuk membuat node, lalu salin perintah instalasi melalui tombol Deploy pada node. Jalankan perintah di server target, tunggu Agent melaporkan, dan node akan online.",
+      "add_title": "Tambah Node, Instal Agent",
+      "description": "Belum ada server? Masuk ke menu 'Server' untuk manajemen node, lalu tambahkan node untuk server Anda.",
+      "title": "Hubungkan Server Pertama"
+    },
+    "markets": {
+      "action": "Jelajahi Plugin",
+      "description": "Jelajahi tema di Pasar Tema untuk mengubah tampilan halaman monitoring. Setelah diinstal, kelola di menu 'Tema'.",
+      "plugins_description": "Pasar Plugin menyediakan lebih banyak fitur ekstensi. Setelah diinstal, kelola dan konfigurasikan plugin dari menu 'Plugin'.",
+      "plugins_title": "Ekstensi Komari dengan Plugin",
+      "title": "Jelajahi Pasar Tema"
+    },
+    "next": "Berikutnya",
+    "notifications": {
+      "action": "Konfigurasi Notifikasi",
+      "description": "Tambahkan dan uji kanal notifikasi di sini untuk mengirim peringatan ke layanan pesan yang biasa Anda gunakan.",
+      "offline_description": "Konfigurasikan peringatan dan waktu tunda di notifikasi offline untuk mengurangi gangguan akibat fluktuasi jaringan sesaat.",
+      "offline_title": "Server Offline, Ketahui Segera",
+      "rules_description": "Notifikasi umum menyediakan akses konfigurasi aturan peringatan lainnya. Atur kanal notifikasi terlebih dahulu, lalu konfigurasikan aturan sesuai kebutuhan.",
+      "rules_title": "Konfigurasikan Aturan Notifikasi Sesuai Kebutuhan",
+      "title": "Biarkan Server Memberi Tahu Anda Secara Proaktif"
+    },
+    "previous": "Sebelumnya",
+    "progress": "Panduan Cepat · {{current}} / {{total}}",
+    "save_failed": "Gagal menyimpan catatan panduan, mungkin akan ditampilkan lagi saat masuk berikutnya.",
+    "skip": "Lewati Panduan",
+    "terminal": {
+      "description": "Klik kanan tab di bagian atas terminal untuk membuka menu fitur lainnya: ganti nama, salin sesi, atur warna label, dan tutup sesi lain.",
+      "title": "Tab Terminal Memiliki Lebih Banyak Fitur",
+      "tools_description": "Menu klik kanan yang sama juga menyediakan pencarian teks, ekspor konten terminal, manajemen file, editor, dan pemantauan sumber daya. Setelah menutup panduan, coba klik kanan tab.",
+      "tools_title": "File, Pencarian, dan Pemantauan Sumber Daya"
+    },
+    "workbench": {
+      "action": "Buka Workbench",
+      "description": "Sudah ada server? Buka workbench dari sini. Klik tombol terminal di workbench dan pilih server untuk memulai sesi terminal jarak jauh.",
+      "files_description": "Workbench juga menyediakan penjelajahan dan pengeditan file, memungkinkan unggah, unduh, dan edit file jarak jauh. Klik tombol workbench untuk memilih server dan masuk ke area kerja file.",
+      "files_title": "Manajemen File Juga Ada di Sini",
+      "title": "Coba Workbench Jarak Jauh"
+    }
   },
   "operations": {
     "title": "Operasional",
@@ -1267,6 +1351,7 @@
     },
     "missing_required_fields": "Silakan isi kolom yang wajib: {{fieldNames}}",
     "notification": {
+      "channel_unavailable": "Saluran notifikasi ini saat ini tidak terdaftar.",
       "email": {
         "host": "Server SMTP",
         "password": "Kata Sandi",
@@ -1299,7 +1384,8 @@
       "template_description": "Komari akan mengirim pemberitahuan sesuai dengan template pemberitahuan pesan",
       "test_description": "Kirim pesan uji coba",
       "test_title": "Kirim pesan uji coba",
-      "title": "Notifikasi"
+      "title": "Notifikasi",
+      "unavailable": "Tidak tersedia"
     },
     "settings_save_failed": "Gagal menyimpan pengaturan",
     "settings_saved": "Pengaturan berhasil disimpan",
@@ -1418,26 +1504,6 @@
       "target": "Basis data tujuan",
       "target_description": "Gunakan SQLite lokal atau kirim data metrik ke MariaDB / MySQL / PostgreSQL jarak jauh.",
       "title": "Peningkatan basis data pemantauan"
-    },
-    "xtermjs": {
-      "convert_eol": "Konversi EOL",
-      "cursor_blink": "Kedip Kursor",
-      "custom_css": "CSS Kustom",
-      "custom_css_description": "Gunakan prefiks .terminal-page atau .terminal-xterm-host saat menulis aturan.",
-      "font_family": "Keluarga Font",
-      "font_size": "Ukuran Font",
-      "reset_defaults": "Pulihkan default lokal",
-      "scrollback": "Scrollback",
-      "terminal_padding": "Padding Terminal",
-      "theme_json": "JSON Tema",
-      "theme_json_description": "Hanya terminalOptions.theme yang diedit. Key yang tidak dikenal akan difilter saat disimpan.",
-      "theme_json_filtered": "JSON tema difilter",
-      "theme_json_invalid": "JSON tema tidak valid",
-      "theme_json_must_be_object": "JSON tema harus berupa objek JSON",
-      "title": "XtermJS",
-      "transparent_background": "Latar Transparan",
-      "transparent_hint": "Aktifkan transparansi hanya jika latar kontainer juga transparan.",
-      "transparent_theme_hint": "Latar tema masih opak. Gunakan rgba(...) atau hsla(...)."
     }
   },
   "status_settings": "Pengaturan Status",
@@ -1479,7 +1545,6 @@
       "use_regex": "Gunakan Regex"
     },
     "server": "Server",
-    "settings_error": "Gagal memuat pengaturan xterm; menggunakan bawaan: {{message}}",
     "tabs": {
       "choose_server": "Pilih Server",
       "connecting": "Menghubungkan...",

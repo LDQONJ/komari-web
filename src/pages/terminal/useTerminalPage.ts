@@ -13,12 +13,11 @@ import type {
 } from "react";
 import { useTranslation } from "react-i18next";
 import throttle from "lodash/throttle";
-import {
-  defaultXtermjsSettings,
-  useXtermjsSettings,
-} from "@/hooks/useXtermjsSettings";
-import type { XtermjsSettings } from "@/hooks/useXtermjsSettings";
 import type { TerminalSessionApi } from "./TerminalSession";
+import {
+  DEFAULT_TERMINAL_FONT_FAMILY,
+  DEFAULT_TERMINAL_PADDING,
+} from "./terminalDefaults";
 import {
   createTab,
   createTabId,
@@ -45,11 +44,6 @@ const getTabShortcutIndex = (event: KeyboardEvent) => {
 };
 
 export const useTerminalPage = () => {
-  const {
-    settings,
-    loading: settingsLoading,
-    error: settingsError,
-  } = useXtermjsSettings();
   const { t } = useTranslation();
   const [clients, setClients] = useState<TerminalClient[]>([]);
   const [clientsLoading, setClientsLoading] = useState(true);
@@ -58,14 +52,14 @@ export const useTerminalPage = () => {
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
   const [serverMenuOpen, setServerMenuOpen] = useState(false);
-  const [isClipboardOpen, setIsClipboardOpen] = useState(false);
-  const [sidebarTab, setSidebarTab] = useState<"clipboard" | "files">("clipboard");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [leftWidth, setLeftWidth] = useState<number>(window.innerWidth * 0.7);
   const [httpsCalloutOpen, setHttpsCalloutOpen] = useState(
     window.location.protocol !== "https:",
   );
   const [twoFaEnabled, setTwoFaEnabled] = useState(false);
   const [twoFaResolved, setTwoFaResolved] = useState(false);
+  const [onboardingAuthenticated, setOnboardingAuthenticated] = useState(false);
 
   // Search state
   const [searchOpen, setSearchOpen] = useState(false);
@@ -91,18 +85,10 @@ export const useTerminalPage = () => {
   tabsRef.current = tabs;
   activeTabIdRef.current = activeTabId;
 
-  const resolvedSettings: XtermjsSettings = settingsError
-    ? defaultXtermjsSettings
-    : settings;
   const appearance = {
-    "--xterm-padding": `${resolvedSettings.terminalPadding}px`,
-    "--xterm-font-family": resolvedSettings.terminalOptions.fontFamily,
+    "--xterm-padding": `${DEFAULT_TERMINAL_PADDING}px`,
+    "--xterm-font-family": DEFAULT_TERMINAL_FONT_FAMILY,
   } as CSSProperties;
-
-  useEffect(() => {
-    if (!settingsError) return;
-    toast.error(t("terminal.settings_error", { message: settingsError.message }));
-  }, [settingsError, t]);
   const updateTabs = useCallback((next: TerminalTab[]) => {
     tabsRef.current = next;
     setTabs(next);
@@ -169,13 +155,14 @@ export const useTerminalPage = () => {
     let mounted = true;
     fetch("/api/me")
       .then((response) => response.json())
-      .then((data: { "2fa_enabled"?: boolean }) => {
+      .then((data: { "2fa_enabled"?: boolean; logged_in?: boolean }) => {
         if (!mounted) {
           return;
         }
         const enabled = Boolean(data?.["2fa_enabled"]);
         setTwoFaEnabled(enabled);
         setTwoFaResolved(true);
+        setOnboardingAuthenticated(data.logged_in === true);
       })
       .catch(() => {
         if (!mounted) {
@@ -200,19 +187,6 @@ export const useTerminalPage = () => {
       setActiveTabId(tabs[0].id);
     }
   }, [activeTabId, tabs]);
-
-  useEffect(() => {
-    if (!resolvedSettings.customCss) {
-      return;
-    }
-    const style = document.createElement("style");
-    style.id = "custom-xtermjs-style";
-    style.textContent = resolvedSettings.customCss;
-    document.head.appendChild(style);
-    return () => {
-      style.remove();
-    };
-  }, [resolvedSettings.customCss]);
 
   useEffect(() => {
     const style = document.createElement("style");
@@ -277,7 +251,7 @@ export const useTerminalPage = () => {
   useEffect(() => {
     const resize = window.setTimeout(() => activeApiRef.current?.fit(), 100);
     return () => window.clearTimeout(resize);
-  }, [activeApi, isClipboardOpen]);
+  }, [activeApi, isSidebarOpen]);
 
   useEffect(() => {
     const terminal = activeApi?.terminal;
@@ -523,8 +497,7 @@ export const useTerminalPage = () => {
     if (id) {
       setActiveTabId(id);
     }
-    setSidebarTab("files");
-    setIsClipboardOpen(true);
+    setIsSidebarOpen(true);
   }, []);
   const openSearch = useCallback((id?: string) => {
     if (id) {
@@ -707,7 +680,7 @@ export const useTerminalPage = () => {
   // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (document.querySelector(".km-file-editor")) {
+      if (document.querySelector(".km-file-editor, .km-guide-content")) {
         return;
       }
       const ctrlShift =
@@ -818,23 +791,11 @@ export const useTerminalPage = () => {
     toggleFullscreen,
   ]);
 
-  const sendCommand = useCallback((command: string) => {
-    const api = activeTabIdRef.current
-      ? sessionApisRef.current.get(activeTabIdRef.current)
-      : undefined;
-    api?.send(`${command}\r`);
-  }, []);
-
-  const sessionsReady = !settingsLoading && twoFaResolved;
-  const contextValue = useMemo(
-    () => ({ terminal: activeApi?.terminal ?? null, sendCommand }),
-    [activeApi, sendCommand],
-  );
+  const sessionsReady = twoFaResolved;
 
   return {
+    onboardingAuthenticated,
     t,
-    settingsError,
-    resolvedSettings,
     appearance,
     clients,
     clientsLoading,
@@ -843,8 +804,7 @@ export const useTerminalPage = () => {
     editingTabId,
     renameDraft,
     serverMenuOpen,
-    isClipboardOpen,
-    sidebarTab,
+    isSidebarOpen,
     leftWidth,
     httpsCalloutOpen,
     twoFaEnabled,
@@ -856,13 +816,11 @@ export const useTerminalPage = () => {
     searchUseRegex,
     resourceMonitorServers,
     containerRef,
-    contextValue,
     sessionsReady,
     setActiveTabId,
     setServerMenuOpen,
     setRenameDraft,
-    setIsClipboardOpen,
-    setSidebarTab,
+    setIsSidebarOpen,
     setHttpsCalloutOpen,
     handleSearchTermChange,
     handleFindNext,

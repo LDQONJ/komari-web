@@ -78,6 +78,8 @@
       "tokenPlaceholder": "请输入 Token",
       "trafficLimit": "流量阈值",
       "trafficLimit_description": "用于首页流量进度条，设置为 0 B 禁用。",
+      "trafficLimitInvalid": "无法解析该数值，支持如 100 GB / 512 MiB / 2T（最大 PB）",
+      "trafficLimitInvalidSave": "流量阈值格式无法解析，请先修正",
       "trafficLimitType": "统计方式",
       "trafficLimitType_down": "仅下载",
       "trafficLimitType_max": "取最大",
@@ -257,14 +259,6 @@
     "violet": "紫罗兰",
     "yellow": "黄色"
   },
-  "command_clipboard": {
-    "add": "添加命令",
-    "delete": "删除命令",
-    "edit": "编辑命令",
-    "error_generic": "发生错误",
-    "error_loading": "加载命令失败：{{message}}",
-    "title": "命令剪贴板"
-  },
   "common": {
     "about": "关于",
     "action": "操作",
@@ -410,6 +404,54 @@
     "uploadTotal": "累计上传",
     "viewChart": "查看24小时图表",
     "yesterday": "昨天"
+  },
+  "dashboardLayout": {
+    "cancelled": "已取消移动",
+    "capacityCount": "{{count}} 台节点的配置容量",
+    "cards": "选择卡片",
+    "compact": "标准",
+    "cores": "CPU 核心",
+    "customize": "自定义",
+    "dropped": "卡片已放下",
+    "editing": "编辑布局",
+    "empty": "暂无卡片",
+    "full": "整行",
+    "height": "卡片高度",
+    "hide": "隐藏{{name}}",
+    "keyboard": "按空格键提起卡片，方向键移动，再按空格键放下，Escape 取消。",
+    "loadFailed": "布局加载失败，重试",
+    "move": "移动{{name}}",
+    "moved": "{{name}}移至第 {{position}} 位",
+    "normal": "标准",
+    "notifications": "通知配置",
+    "picked": "已提起{{name}}",
+    "ram": "总内存",
+    "reset": "恢复默认布局",
+    "saved": "仪表盘布局已保存",
+    "saveFailed": "保存失败，布局尚未保存，请重试。",
+    "selection": "已选择 {{count}} 张卡片",
+    "servers": "服务器管理",
+    "short": "紧凑",
+    "storage": "总磁盘",
+    "tall": "加高",
+    "terminal": "远程工作台",
+    "visibleNodes": "展示节点数",
+    "visibleNodesCount": "展示 {{count}} 台节点",
+    "wide": "加宽",
+    "widgets": {
+      "cpu": "CPU 使用排行",
+      "database": "数据库用量",
+      "disk": "磁盘压力",
+      "expiry": "到期提醒",
+      "memory": "内存使用排行",
+      "overview": "在线概览",
+      "ping": "网络质量",
+      "resources": "资源容量",
+      "shortcuts": "快捷操作",
+      "traffic": "24 小时流量"
+    },
+    "width": "卡片宽度",
+    "workspace": "我的仪表盘"
   },
   "database_migration": {
     "after": "迁移后",
@@ -632,12 +674,6 @@
     "welcome_title": "欢迎使用 Komari"
   },
   "just_now": "刚刚",
-  "loadAlert": {
-    "metric": "监控项",
-    "ratio": "时间占比",
-    "threshold_placeholder": "百分比，例如80代表80%",
-    "title": "负载警报"
-  },
   "loading": "加载中...",
   "log": {
     "title": "日志"
@@ -648,6 +684,7 @@
     "login_with_github": "使用 GitHub 登录",
     "password": "密码",
     "password_placeholder": "请输入您的密码",
+    "request_failed": "登录失败，请重试。",
     "title": "登录",
     "two_factor": "双因素认证",
     "username": "用户名"
@@ -752,9 +789,6 @@
     "general": {
       "title": "通用事件"
     },
-    "load": {
-      "title": "负载通知"
-    },
     "offline": {
       "cooldown": "冷静期",
       "full_title": "离线通知设置",
@@ -766,6 +800,56 @@
       "title": "离线通知"
     },
     "title": "通知"
+  },
+  "notificationUpgrade": {
+    "acknowledge": "知道了",
+    "configure": "前往配置",
+    "description": "请注意通知渠道发生了破坏性变更，现有的通知配置可能无法正常工作。请前往通知渠道设置，重新配置并测试，以确保告警正常送达。",
+    "title": "破坏性变更"
+  },
+  "onboarding": {
+    "finish": "知道了",
+    "install": {
+      "action": "添加节点",
+      "add_description": "点击这里创建节点，再通过节点的部署按钮复制安装命令。在目标服务器上运行命令，等待 Agent 上报后，节点就会上线。",
+      "add_title": "添加节点，安装 Agent",
+      "description": "还没有服务器，先从「服务器」进入节点管理，为你的服务器添加一个节点。",
+      "title": "接入第一台服务器"
+    },
+    "markets": {
+      "action": "浏览插件",
+      "description": "在主题市场浏览主题，为监控页面更换外观。安装后可在「主题」菜单中管理。",
+      "plugins_description": "插件市场提供更多扩展功能。安装后，可从「插件」菜单管理和配置插件。",
+      "plugins_title": "用插件扩展 Komari",
+      "title": "逛逛主题市场"
+    },
+    "next": "下一步",
+    "notifications": {
+      "action": "配置通知",
+      "description": "在这里添加并测试通知渠道，将告警发送到你常用的消息服务。",
+      "offline_description": "在离线通知中配置告警和延迟时间，减少短暂网络波动带来的打扰。",
+      "offline_title": "服务器离线，及时知晓",
+      "rules_description": "通用通知提供其他告警规则的配置入口。先设置好通知渠道，再按需配置规则。",
+      "rules_title": "按需配置通知规则",
+      "title": "让服务器主动通知你"
+    },
+    "previous": "上一步",
+    "progress": "快速指引 · {{current}} / {{total}}",
+    "save_failed": "指引记录保存失败，下次进入时可能会再次展示。",
+    "skip": "跳过指引",
+    "terminal": {
+      "description": "右键点击终端顶部的 Tab，即可打开更多功能菜单：重命名、复制会话、设置标签颜色，以及关闭其他会话。",
+      "title": "终端 Tab 还有更多功能",
+      "tools_description": "同一个右键菜单还提供文本搜索、导出终端内容、文件管理、编辑器和资源监控。关闭指引后，右键 Tab 试试吧。",
+      "tools_title": "文件、搜索与资源监控"
+    },
+    "workbench": {
+      "action": "打开工作台",
+      "description": "已有服务器，可以从这里打开工作台。点击工作台中的终端按钮并选择服务器，即可开始远程终端会话。",
+      "files_description": "工作台还提供文件浏览和编辑，可以上传、下载及编辑远程文件。点击工作台按钮选择服务器，就能进入文件工作区。",
+      "files_title": "文件管理也在这里",
+      "title": "试试远程工作台"
+    }
   },
   "operations": {
     "title": "运维",
@@ -1279,6 +1363,7 @@
     },
     "missing_required_fields": "请填写必填字段: {{fieldNames}}",
     "notification": {
+      "channel_unavailable": "当前通知渠道未注册。",
       "email": {
         "host": "SMTP 服务器",
         "password": "密码",
@@ -1311,7 +1396,8 @@
       "template_description": "Komari 将按照消息通知模板发送通知",
       "test_description": "发送测试消息",
       "test_title": "发送测试消息",
-      "title": "通知"
+      "title": "通知",
+      "unavailable": "不可用"
     },
     "settings_save_failed": "保存设置失败",
     "settings_saved": "设置已保存",
@@ -1430,26 +1516,6 @@
       "target": "目标数据库",
       "target_description": "选择本地 SQLite，或将指标数据写入远程 MariaDB / MySQL / PostgreSQL。",
       "title": "监控数据库升级"
-    },
-    "xtermjs": {
-      "convert_eol": "转换 EOL",
-      "cursor_blink": "光标闪烁",
-      "custom_css": "自定义 CSS",
-      "custom_css_description": "编写规则时，建议使用 .terminal-page 或 .terminal-xterm-host 作为前缀。",
-      "font_family": "字体族",
-      "font_size": "字号",
-      "reset_defaults": "恢复本地默认值",
-      "scrollback": "回滚行数",
-      "terminal_padding": "终端内边距",
-      "theme_json": "主题 JSON",
-      "theme_json_description": "这里只编辑 terminalOptions.theme。保存时会过滤未知键。",
-      "theme_json_filtered": "已过滤主题 JSON",
-      "theme_json_invalid": "主题 JSON 无效",
-      "theme_json_must_be_object": "主题 JSON 必须是 JSON 对象",
-      "title": "XtermJS",
-      "transparent_background": "透明背景",
-      "transparent_hint": "仅在容器背景也透明时启用透明效果。",
-      "transparent_theme_hint": "主题背景仍然不透明，请改用 rgba(...) 或 hsla(...)。"
     }
   },
   "status_settings": "状态显示设置",
@@ -1491,7 +1557,6 @@
       "use_regex": "正则表达式"
     },
     "server": "服务器",
-    "settings_error": "xterm 设置加载失败，已使用默认设置：{{message}}",
     "tabs": {
       "choose_server": "选择服务器",
       "connecting": "正在连接...",

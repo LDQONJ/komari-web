@@ -1,19 +1,20 @@
 import "@xterm/xterm/css/xterm.css";
 import { Theme } from "@radix-ui/themes";
-import { TerminalContext } from "@/contexts/TerminalContext";
 import TerminalNotices from "./TerminalNotices";
 import TerminalResourceMonitor from "./TerminalResourceMonitor";
 import TerminalTabBar from "./TerminalTabBar";
 import TerminalWorkspace from "./TerminalWorkspace";
 import { useTerminalPage } from "./useTerminalPage";
+import { DEFAULT_TERMINAL_FONT_FAMILY } from "./terminalDefaults";
 import { lazy, Suspense, useState } from "react";
+import TerminalGuide from "@/components/onboarding/TerminalGuide";
 
 const FileEditorDialog = lazy(() => import("./FileEditorDialog"));
 
 const TerminalPage = () => {
   const {
+    onboardingAuthenticated,
     t,
-    resolvedSettings,
     appearance,
     clients,
     clientsLoading,
@@ -22,8 +23,7 @@ const TerminalPage = () => {
     editingTabId,
     renameDraft,
     serverMenuOpen,
-    isClipboardOpen,
-    sidebarTab,
+    isSidebarOpen,
     leftWidth,
     httpsCalloutOpen,
     twoFaEnabled,
@@ -35,13 +35,11 @@ const TerminalPage = () => {
     searchUseRegex,
     resourceMonitorServers,
     containerRef,
-    contextValue,
     sessionsReady,
     setActiveTabId,
     setServerMenuOpen,
     setRenameDraft,
-    setIsClipboardOpen,
-    setSidebarTab,
+    setIsSidebarOpen,
     setHttpsCalloutOpen,
     handleSearchTermChange,
     handleFindNext,
@@ -69,7 +67,6 @@ const TerminalPage = () => {
   const [workbenchMenuOpen, setWorkbenchMenuOpen] = useState(false);
 
   return (
-    <TerminalContext.Provider value={contextValue}>
       <Theme
         appearance="dark"
         className="km-page-terminal fixed inset-0 h-screen w-screen overflow-hidden bg-[#1e1e1e]"
@@ -127,14 +124,12 @@ const TerminalPage = () => {
 
           <TerminalWorkspace
             containerRef={containerRef}
-            isClipboardOpen={isClipboardOpen}
-            sidebarTab={sidebarTab}
+            isSidebarOpen={isSidebarOpen}
             leftWidth={leftWidth}
             tabs={tabs}
             clientsLoading={clientsLoading}
             activeTabId={activeTabId}
             sessionsReady={sessionsReady}
-            settings={resolvedSettings}
             twoFaEnabled={twoFaEnabled}
             disconnectMessage={t("terminal.disconnect")}
             searchOpen={searchOpen}
@@ -150,11 +145,7 @@ const TerminalPage = () => {
             onToggleUseRegex={handleToggleUseRegex}
             onCloseSearch={closeSearch}
             onApiChange={handleApiChange}
-            onToggleSidebar={() => setIsClipboardOpen((open) => !open)}
-            onSidebarTabChange={(tab) => {
-              setSidebarTab(tab);
-              setIsClipboardOpen(true);
-            }}
+            onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
             onStartDragging={startDragging}
             onOpenTerminalMenu={() => {
               setWorkbenchMenuOpen(false);
@@ -172,6 +163,11 @@ const TerminalPage = () => {
           servers={resourceMonitorServers}
           onRemove={toggleResourceMonitor}
         />
+        <TerminalGuide
+          authenticated={onboardingAuthenticated}
+          hasTabs={!clientsLoading && tabs.length > 0}
+          blocked={Boolean(editorUuid) || serverMenuOpen || workbenchMenuOpen || Boolean(editingTabId)}
+        />
 
         {editorUuid && (
           <Suspense fallback={null}>
@@ -179,7 +175,7 @@ const TerminalPage = () => {
               open
               uuid={editorUuid}
               initialFile={null}
-              fontFamily={resolvedSettings.terminalOptions.fontFamily}
+              fontFamily={DEFAULT_TERMINAL_FONT_FAMILY}
               onOpenChange={(open) => {
                 if (!open) setEditorUuid(null);
               }}
@@ -187,7 +183,6 @@ const TerminalPage = () => {
           </Suspense>
         )}
       </Theme>
-    </TerminalContext.Provider>
   );
 };
 

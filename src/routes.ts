@@ -43,6 +43,10 @@ export const routes: RouteObject[] = [
     ),
   },
   {
+    path: "/admin/login",
+    element: React.createElement(lazy(() => import("./pages/admin/login"))),
+  },
+  {
     path: "/admin",
     element: React.createElement(AdminLayout),
     children: [
@@ -182,12 +186,6 @@ export const routes: RouteObject[] = [
             ),
           },
           {
-            path: "xtermjs",
-            element: React.createElement(
-              lazy(() => import("./pages/admin/settings/xtermjs"))
-            ),
-          },
-          {
             path: "metrics",
             element: React.createElement(
               lazy(() => import("./pages/admin/settings/metrics"))
@@ -223,12 +221,6 @@ export const routes: RouteObject[] = [
             path: "offline",
             element: React.createElement(
               lazy(() => import("./pages/admin/notification/offline"))
-            ),
-          },
-          {
-            path: "load",
-            element: React.createElement(
-              lazy(() => import("./pages/admin/notification/load"))
             ),
           },
           {

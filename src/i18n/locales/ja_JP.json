@@ -78,6 +78,8 @@
       "tokenPlaceholder": "トークンを入力してください",
       "trafficLimit": "トラフィック制限",
       "trafficLimit_description": "ホームページのトラフィック進捗バーに使用され、0 Bに設定すると無効になります。",
+      "trafficLimitInvalid": "値を解析できません。100 GB / 512 MiB / 2T（最大 PB）のような形式に対応しています。",
+      "trafficLimitInvalidSave": "トラフィック閾値の形式を解析できません。先に修正してください。",
       "trafficLimitType": "統計方法",
       "trafficLimitType_down": "ダウンロードのみ",
       "trafficLimitType_max": "最大値を取る",
@@ -257,14 +259,6 @@
     "violet": "バイオレット",
     "yellow": "黄色"
   },
-  "command_clipboard": {
-    "add": "コマンドを追加",
-    "delete": "コマンドを削除",
-    "edit": "コマンドを編集",
-    "error_generic": "エラーが発生しました",
-    "error_loading": "コマンドの読み込みに失敗しました: {{message}}",
-    "title": "コマンドクリップボード"
-  },
   "common": {
     "about": "について",
     "action": "操作",
@@ -410,6 +404,54 @@
     "uploadTotal": "累計アップロード",
     "viewChart": "24時間チャートを表示",
     "yesterday": "昨日"
+  },
+  "dashboardLayout": {
+    "cancelled": "移動をキャンセルしました",
+    "capacityCount": "{{count}} 台ノードの構成容量",
+    "cards": "カードを選択",
+    "compact": "標準",
+    "cores": "CPU コア",
+    "customize": "カスタマイズ",
+    "dropped": "カードを配置しました",
+    "editing": "レイアウトを編集",
+    "empty": "カードがありません",
+    "full": "全幅",
+    "height": "カードの高さ",
+    "hide": "{{name}}を非表示",
+    "keyboard": "スペースキーでカードを持ち上げ、矢印キーで移動し、もう一度スペースキーで配置、Escape キーでキャンセルします。",
+    "loadFailed": "レイアウトの読み込みに失敗しました。再試行",
+    "move": "{{name}}を移動",
+    "moved": "{{name}}を {{position}} 番目に移動しました",
+    "normal": "標準",
+    "notifications": "通知設定",
+    "picked": "{{name}}を持ち上げました",
+    "ram": "メモリ合計",
+    "reset": "デフォルトのレイアウトに戻す",
+    "saved": "ダッシュボードのレイアウトを保存しました",
+    "saveFailed": "保存に失敗しました。レイアウトは保存されていません。再試行してください。",
+    "selection": "{{count}} 枚のカードを選択しました",
+    "servers": "サーバー管理",
+    "short": "コンパクト",
+    "storage": "ディスク合計",
+    "tall": "高",
+    "terminal": "リモートワークベンチ",
+    "visibleNodes": "表示ノード数",
+    "visibleNodesCount": "{{count}} 台のノードを表示",
+    "wide": "幅広",
+    "widgets": {
+      "cpu": "CPU 使用率ランキング",
+      "database": "データベース使用量",
+      "disk": "ディスク負荷",
+      "expiry": "期限リマインダー",
+      "memory": "メモリ使用率ランキング",
+      "overview": "オンライン概要",
+      "ping": "ネットワーク品質",
+      "resources": "リソース容量",
+      "shortcuts": "クイック操作",
+      "traffic": "24時間トラフィック"
+    },
+    "width": "カードの幅",
+    "workspace": "マイダッシュボード"
   },
   "database_migration": {
     "after": "移行後",
@@ -632,12 +674,6 @@
     "welcome_title": "Komari へようこそ"
   },
   "just_now": "たった今",
-  "loadAlert": {
-    "metric": "監視項目",
-    "ratio": "時間の割合",
-    "threshold_placeholder": "パーセンテージ、例えば80は80%を表します",
-    "title": "負荷アラート"
-  },
   "loading": "読み込み中...",
   "log": {
     "title": "ログ"
@@ -648,6 +684,7 @@
     "login_with_github": "GitHubでログイン",
     "password": "パスワード",
     "password_placeholder": "パスワードを入力してください",
+    "request_failed": "ログインに失敗しました。もう一度お試しください。",
     "title": "ログイン",
     "two_factor": "二要素認証",
     "username": "ユーザー名"
@@ -752,9 +789,6 @@
     "general": {
       "title": "一般イベント"
     },
-    "load": {
-      "title": "負荷通知"
-    },
     "offline": {
       "cooldown": "クールダウン期間",
       "full_title": "オフライン通知設定",
@@ -766,6 +800,56 @@
       "title": "オフライン通知"
     },
     "title": "通知"
+  },
+  "notificationUpgrade": {
+    "acknowledge": "了解しました",
+    "configure": "設定へ移動",
+    "description": "1.6.0 より前のバージョンからアップグレードしました。通知チャネルに破壊的変更があり、再設定が必要です。通知チャネルの設定に移動して、再設定とテストを行い、アラートが正常に配信されることを確認してください。",
+    "title": "通知チャネルに破壊的変更が発生しました"
+  },
+  "onboarding": {
+    "finish": "了解しました",
+    "install": {
+      "action": "ノードを追加",
+      "add_description": "ここをクリックしてノードを作成し、ノードのデプロイボタンからインストールコマンドをコピーします。対象サーバーでコマンドを実行し、Agent がレポートを送信すると、ノードがオンラインになります。",
+      "add_title": "ノードを追加して Agent をインストール",
+      "description": "まだサーバーがありません。「サーバー」からノード管理に入り、サーバーにノードを追加してください。",
+      "title": "最初のサーバーを接続"
+    },
+    "markets": {
+      "action": "プラグインを閲覧",
+      "description": "テーママーケットでテーマを閲覧し、監視ページの外観を変更できます。インストール後は「テーマ」メニューから管理できます。",
+      "plugins_description": "プラグインマーケットにより多くの拡張機能を提供します。インストール後は「プラグイン」メニューからプラグインを管理・設定できます。",
+      "plugins_title": "プラグインで Komari を拡張",
+      "title": "テーママーケットを見る"
+    },
+    "next": "次へ",
+    "notifications": {
+      "action": "通知を設定",
+      "description": "ここで通知チャネルを追加してテストし、アラートを普段お使いのメッセージサービスに送信できます。",
+      "offline_description": "オフライン通知でアラートと遅延時間を設定し、一時的なネットワーク変動による通知を減らします。",
+      "offline_title": "サーバーがオフラインになったらすぐ通知",
+      "rules_description": "一般通知には、その他のアラートルールの設定入口があります。まず通知チャネルを設定し、必要に応じてルールを設定してください。",
+      "rules_title": "必要に応じて通知ルールを設定",
+      "title": "サーバーから能動的に通知を受け取る"
+    },
+    "previous": "前へ",
+    "progress": "クイックガイド · {{current}} / {{total}}",
+    "save_failed": "ガイドの記録を保存できませんでした。次回表示される場合があります。",
+    "skip": "ガイドをスキップ",
+    "terminal": {
+      "description": "ターミナル上部のタブを右クリックすると、追加の機能メニューが開きます。名前の変更、セッションの複製、タブカラーの設定、その他のセッションを閉じるなどが利用できます。",
+      "title": "ターミナルタブにはさらに多くの機能があります",
+      "tools_description": "同じ右クリックメニューには、テキスト検索、ターミナル内容のエクスポート、ファイル管理、エディター、リソース監視も提供されています。ガイドを閉じた後、タブを右クリックして試してください。",
+      "tools_title": "ファイル、検索、リソース監視"
+    },
+    "workbench": {
+      "action": "ワークベンチを開く",
+      "description": "サーバーがある場合、ここからワークベンチを開くことができます。ワークベンチ内のターミナルボタンをクリックしてサーバーを選択すると、リモートターミナルセッションを開始できます。",
+      "files_description": "ワークベンチではファイルの閲覧と編集も提供しており、リモートファイルのアップロード、ダウンロード、編集が可能です。ワークベンチボタンをクリックしてサーバーを選択すると、ファイルワークスペースに入れます。",
+      "files_title": "ファイル管理もここにあります",
+      "title": "リモートワークベンチを試す"
+    }
   },
   "operations": {
     "title": "運用",
@@ -1267,6 +1351,7 @@
     },
     "missing_required_fields": "必須フィールドを入力してください: {{fieldNames}}",
     "notification": {
+      "channel_unavailable": "この通知チャネルは現在登録されていません。",
       "email": {
         "host": "SMTP サーバー",
         "password": "パスワード",
@@ -1299,7 +1384,8 @@
       "template_description": "Komariはメッセージ通知テンプレートに従って通知を送信します",
       "test_description": "テストメッセージを送信",
       "test_title": "テストメッセージを送信",
-      "title": "通知"
+      "title": "通知",
+      "unavailable": "利用不可"
     },
     "settings_save_failed": "設定の保存に失敗しました",
     "settings_saved": "設定が保存されました",
@@ -1418,26 +1504,6 @@
       "target": "移行先データベース",
       "target_description": "ローカル SQLite を使用するか、メトリクスをリモート MariaDB / MySQL / PostgreSQL に保存します。",
       "title": "監視データベースのアップグレード"
-    },
-    "xtermjs": {
-      "convert_eol": "EOL を変換",
-      "cursor_blink": "カーソル点滅",
-      "custom_css": "カスタム CSS",
-      "custom_css_description": "ルールを書くときは .terminal-page または .terminal-xterm-host の接頭辞を推奨します。",
-      "font_family": "フォントファミリー",
-      "font_size": "フォントサイズ",
-      "reset_defaults": "ローカルの既定値に戻す",
-      "scrollback": "スクロールバック",
-      "terminal_padding": "ターミナルの余白",
-      "theme_json": "テーマ JSON",
-      "theme_json_description": "ここでは terminalOptions.theme のみ編集します。未知のキーは保存時にフィルターされます。",
-      "theme_json_filtered": "フィルタ済みテーマ JSON",
-      "theme_json_invalid": "無効なテーマ JSON",
-      "theme_json_must_be_object": "テーマ JSON は JSON オブジェクトである必要があります",
-      "title": "XtermJS",
-      "transparent_background": "透明背景",
-      "transparent_hint": "コンテナ背景も透明な場合にのみ透明化を有効にしてください。",
-      "transparent_theme_hint": "テーマ背景はまだ不透明です。rgba(...) または hsla(...) を使用してください。"
     }
   },
   "status_settings": "ステータス表示設定",
@@ -1479,7 +1545,6 @@
       "use_regex": "正規表現を使用"
     },
     "server": "サーバー",
-    "settings_error": "xterm の設定を読み込めなかったため、既定の設定を使用します：{{message}}",
     "tabs": {
       "choose_server": "サーバーを選択",
       "connecting": "接続中...",
