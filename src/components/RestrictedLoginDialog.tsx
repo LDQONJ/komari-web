@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button, Dialog, Text, TextField } from "@radix-ui/themes";
 import { LoaderCircle, LogIn } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -31,7 +31,14 @@ export default function RestrictedLoginDialog({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [twoFactor, setTwoFactor] = useState("");
-  const [requireTwoFactor, setRequireTwoFactor] = useState(false);
+  const [requireTwoFactor, setRequireTwoFactor] = useState(() => {
+    try {
+      return localStorage.getItem("komari_has_2fa") === "true";
+    } catch {
+      return false;
+    }
+  });
+  const twoFactorInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -39,21 +46,31 @@ export default function RestrictedLoginDialog({
     setBusy(true);
     setError("");
     try {
+      const trimmedTwoFa = twoFactor.trim();
       const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username,
           password,
-          ...(twoFactor ? { "2fa_code": twoFactor } : {}),
+          ...(trimmedTwoFa ? { "2fa_code": trimmedTwoFa } : {}),
         }),
       });
       const payload = (await response.json()) as APIResponse;
       if (!response.ok) {
         if (payload.message === "2FA code is required") {
           setRequireTwoFactor(true);
+          try {
+            localStorage.setItem("komari_has_2fa", "true");
+          } catch {}
+          setTimeout(() => twoFactorInputRef.current?.focus(), 50);
         }
         throw new Error(payload.message || `HTTP ${response.status}`);
+      }
+      if (trimmedTwoFa) {
+        try {
+          localStorage.setItem("komari_has_2fa", "true");
+        } catch {}
       }
       await onAuthenticated();
     } catch (loginError) {
@@ -119,12 +136,18 @@ export default function RestrictedLoginDialog({
                   {t("login.two_factor")}
                 </Text>
                 <TextField.Root
+                  ref={twoFactorInputRef}
                   id="restricted-login-2fa-code"
-                  name="2fa_code"
+                  name="totp"
+                  type="text"
                   value={twoFactor}
                   onChange={(event) => setTwoFactor(event.target.value)}
                   autoComplete="one-time-code"
                   inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={8}
+                  placeholder="000000"
+                  autoFocus
                   disabled={busy}
                 />
               </label>

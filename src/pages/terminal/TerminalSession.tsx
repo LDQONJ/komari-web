@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Terminal } from "@xterm/xterm";
 import type { ITerminalOptions } from "@xterm/xterm";
@@ -7,6 +7,8 @@ import { SearchAddon } from "@xterm/addon-search";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Button, Text, TextField } from "@radix-ui/themes";
+import { ShieldCheck } from "lucide-react";
 import type { XtermjsSettings } from "@/hooks/useXtermjsSettings";
 import {
   isTransparentBackground,
@@ -53,7 +55,23 @@ const TerminalSession = ({
   const toastId = useId();
   const { t } = useTranslation();
 
+  const [showOtpModal, setShowOtpModal] = useState(twoFaEnabled);
+  const [otpValue, setOtpValue] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [isConnecting, setIsConnecting] = useState(false);
+  const connectWithOtpRef = useRef<((otp: string) => void) | null>(null);
+  const otpInputRef = useRef<HTMLInputElement>(null);
+
   activeRef.current = active;
+
+  useEffect(() => {
+    if (active && showOtpModal) {
+      const timer = setTimeout(() => {
+        otpInputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [active, showOtpModal]);
 
   useEffect(() => {
     disconnectMessageRef.current = disconnectMessage;
@@ -116,8 +134,6 @@ const TerminalSession = ({
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     let stableConnectionTimer: ReturnType<typeof setTimeout> | null = null;
     let reconnectDeadline: number | null = null;
-    let otpBuffer = "";
-    let awaitingOtp = false;
     let currentOtp: string | null = null;
 
     term.loadAddon(fitAddon);
@@ -196,20 +212,6 @@ const TerminalSession = ({
       }
     };
 
-    const promptOtpLine = "\r\n\x1b[1m" + t("terminal.2fa_prompt", "Two-factor authentication required.") + "\x1b[0m\r\n" + t("terminal.2fa_code_prompt", "Enter 2FA code: ");
-
-    const startOtpPrompt = (isRetry: boolean) => {
-      awaitingOtp = true;
-      otpBuffer = "";
-      if (isRetry) {
-        term.write("\r\n\x1b[31m" + t("terminal.otp_invalid", "Invalid or expired 2FA code.") + "\x1b[0m");
-      } else {
-        term.clear();
-      }
-      term.write(promptOtpLine);
-      term.focus();
-    };
-
     term.attachCustomKeyEventHandler((event) => {
       if (event.type !== "keydown") {
         return true;
@@ -240,13 +242,7 @@ const TerminalSession = ({
           if (term.hasSelection() || ctrlAlt) {
             void copySelection();
           } else {
-            if (!awaitingOtp) {
-              send(new Uint8Array([3]));
-            } else {
-              otpBuffer = "";
-              term.write("^C\r\n");
-              term.write(t("terminal.2fa_code_prompt", "Enter 2FA code: "));
-            }
+            send(new Uint8Array([3]));
           }
           return false;
         }
@@ -345,6 +341,9 @@ const TerminalSession = ({
           stableConnectionTimer = null;
         }, 10000);
         hideReconnectingToast();
+        setShowOtpModal(false);
+        setIsConnecting(false);
+        setOtpError("");
         fit();
         startHeartbeat();
       };
@@ -403,7 +402,13 @@ const TerminalSession = ({
         if (!requestID) {
           if (twoFaEnabled) {
             hideReconnectingToast();
-            startOtpPrompt(true);
+            setIsConnecting(false);
+            setOtpError(t("terminal.otp_invalid", "2FA 验证码无效或已过期"));
+            setShowOtpModal(true);
+            setOtpValue("");
+            setTimeout(() => {
+              otpInputRef.current?.focus();
+            }, 50);
           } else {
             scheduleReconnect();
           }
@@ -442,33 +447,18 @@ const TerminalSession = ({
       }, RECONNECT_INTERVAL);
     };
 
+    connectWithOtpRef.current = (otp: string) => {
+      currentOtp = otp;
+      connect(otp);
+    };
+
     if (twoFaEnabled) {
-      startOtpPrompt(false);
+      setShowOtpModal(true);
     } else {
       connect(null);
     }
 
     const termDataDisposable = term.onData((data) => {
-      if (awaitingOtp) {
-        if (data === "\r") {
-          awaitingOtp = false;
-          term.write("\r\n");
-          if (!otpBuffer) {
-            startOtpPrompt(false);
-            return;
-          }
-          currentOtp = otpBuffer;
-          otpBuffer = "";
-          connect(currentOtp);
-        } else if (data === "\x7f" || data === "\b") {
-          if (otpBuffer.length > 0) {
-            otpBuffer = otpBuffer.slice(0, -1);
-          }
-        } else if (data.length === 1 && data >= " " && data <= "~") {
-          otpBuffer += data;
-        }
-        return;
-      }
       send(data);
     });
     const api: TerminalSessionApi = {
@@ -488,6 +478,7 @@ const TerminalSession = ({
 
     return () => {
       disposed = true;
+      connectWithOtpRef.current = null;
       onApiChangeRef.current(null);
       host.removeEventListener("contextmenu", handleContextMenu);
       resizeObserver.disconnect();
@@ -543,6 +534,73 @@ const TerminalSession = ({
         ref={hostRef}
         className="km-terminal-xterm-viewport h-full min-h-0 w-full overflow-hidden"
       />
+      {showOtpModal && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4">
+          <div className="w-full max-w-sm rounded-xl border border-neutral-800 bg-[#161616] p-6 shadow-2xl text-neutral-100">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const code = otpValue.trim();
+                if (!code || isConnecting) return;
+                setIsConnecting(true);
+                setOtpError("");
+                connectWithOtpRef.current?.(code);
+              }}
+              className="flex flex-col gap-4"
+            >
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-blue-500" />
+                <span className="font-semibold text-base">
+                  {t("terminal.2fa_prompt", "两步验证 (2FA)")}
+                </span>
+              </div>
+              <Text size="2" className="text-neutral-400">
+                {t("terminal.2fa_code_prompt", "请输入 2FA 验证码:")}
+              </Text>
+              <div className="flex flex-col gap-1.5">
+                <TextField.Root
+                  ref={otpInputRef}
+                  id={`terminal-totp-${uuid}`}
+                  name="totp"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]*"
+                  placeholder="000000"
+                  maxLength={8}
+                  autoFocus
+                  value={otpValue}
+                  onChange={(e) => {
+                    setOtpValue(e.target.value);
+                    if (otpError) setOtpError("");
+                  }}
+                  disabled={isConnecting}
+                  className="text-center font-mono text-lg tracking-widest"
+                />
+                {otpError && (
+                  <span className="text-xs text-red-400">{otpError}</span>
+                )}
+              </div>
+              <div className="flex justify-end gap-2 mt-1">
+                <Button
+                  type="submit"
+                  disabled={isConnecting || !otpValue.trim()}
+                  className="w-full"
+                >
+                  {isConnecting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-current border-t-transparent mr-1" />
+                      {t("terminal.tabs.connecting", "正在连接...")}
+                    </>
+                  ) : (
+                    t("common.confirm", "确认并连接")
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -244,8 +244,12 @@ const InnerLayout = () => {
                 <TextField.Root
                   className="max-w-128"
                   id="password_2fa"
-                  name="password_2fa"
-                  type="number"
+                  name="totp"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]*"
+                  maxLength={8}
                   placeholder="000000"
                   value={passwordTwoFa}
                   onChange={(e) =>
@@ -427,11 +431,17 @@ const TwoFactorDisabled = () => {
                 <img src={qrcode!} alt="2FA QR Code" width={200} height={200} />
               )}
             </div>
-            <label>{t("account.2fa_otp_input_prompt")}</label>
+            <label htmlFor="enable_2fa_code">{t("account.2fa_otp_input_prompt")}</label>
             <form className="km-account-2fa-form flex flex-col gap-2" onSubmit={handleEnable2fa}>
               <TextField.Root
-                type="number"
-                name="code"
+                id="enable_2fa_code"
+                name="totp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]*"
+                maxLength={8}
+                autoFocus
                 placeholder="000000"
                 value={code}
                 onChange={(e) => setCode((e.target as HTMLInputElement).value)}
@@ -497,26 +507,39 @@ const TwoFactorEnabled = () => {
             <Dialog.Description>
               {t("account.disable_2fa_confirmation")}
             </Dialog.Description>
-            <Flex direction="column" gap="2" className="mt-4">
-              <label htmlFor="disable_2fa_code">
-                {t("account.2fa_otp_input_prompt")}
-              </label>
-              <TextField.Root
-                id="disable_2fa_code"
-                type="number"
-                placeholder="000000"
-                value={code}
-                onChange={(e) => setCode((e.target as HTMLInputElement).value)}
-              />
-            </Flex>
-            <Flex gap="2" justify="end" className="mt-4">
-              <Button variant="soft" onClick={() => setIsOpen(false)}>
-                {t("common.cancel")}
-              </Button>
-              <Button disabled={saving} color="red" onClick={disable2fa}>
-                {t("common.confirm")}
-              </Button>
-            </Flex>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                disable2fa();
+              }}
+            >
+              <Flex direction="column" gap="2" className="mt-4">
+                <label htmlFor="disable_2fa_code">
+                  {t("account.2fa_otp_input_prompt")}
+                </label>
+                <TextField.Root
+                  id="disable_2fa_code"
+                  name="totp"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]*"
+                  maxLength={8}
+                  placeholder="000000"
+                  autoFocus
+                  value={code}
+                  onChange={(e) => setCode((e.target as HTMLInputElement).value)}
+                />
+              </Flex>
+              <Flex gap="2" justify="end" className="mt-4">
+                <Button variant="soft" type="button" onClick={() => setIsOpen(false)}>
+                  {t("common.cancel")}
+                </Button>
+                <Button disabled={saving} color="red" type="submit">
+                  {t("common.confirm")}
+                </Button>
+              </Flex>
+            </form>
           </Dialog.Content>
         </Dialog.Root>
       </div>

@@ -29,7 +29,14 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
     const [twoFac, setTwoFac] = React.useState("");
     const [errorMsg, setErrorMsg] = React.useState("");
     const [isLoading, setIsLoading] = React.useState(false);
-    const [require2FA, setRequire2FA] = React.useState(false);
+    const [require2FA, setRequire2FA] = React.useState(() => {
+      try {
+        return localStorage.getItem("komari_has_2fa") === "true";
+      } catch {
+        return false;
+      }
+    });
+    const twoFactorInputRef = React.useRef<HTMLInputElement>(null);
     const [open, setOpen] = React.useState(autoOpen || false);
     const fieldId = React.useId().replace(/:/g, "");
     const {publicInfo} = usePublicInfo();
@@ -55,6 +62,7 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
       setErrorMsg("");
       setIsLoading(true);
       try {
+        const trimmedTwoFa = twoFac.trim();
         const res = await fetch("/api/login", {
           method: "POST",
           headers: {
@@ -63,20 +71,31 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
           body: JSON.stringify({
             username,
             password,
-            ...(twoFac && !account?.["2fa_enabled"] ? { "2fa_code": twoFac } : {}),
+            ...(trimmedTwoFa ? { "2fa_code": trimmedTwoFa } : {}),
           }),
         });
         const data = await res.json();
         if (res.status === 200) {
+          if (trimmedTwoFa) {
+            try {
+              localStorage.setItem("komari_has_2fa", "true");
+            } catch {}
+          }
           refresh();
           if (typeof onLoginSuccess === "function") {
             onLoginSuccess();
-            return
+            return;
           }
           window.open("/admin/dashboard", "_self");
         } else {
           if (data.message === "2FA code is required") {
             setRequire2FA(true);
+            try {
+              localStorage.setItem("komari_has_2fa", "true");
+            } catch {}
+            setTimeout(() => {
+              twoFactorInputRef.current?.focus();
+            }, 50);
             return;
           }
           setErrorMsg(data.message || "Login failed");
@@ -210,14 +229,17 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
                       {t("login.two_factor")}
                     </Text>
                     <TextField.Root
+                      ref={twoFactorInputRef}
                       className="km-login-input"
                       value={twoFac}
                       onChange={(e) => setTwoFac(e.target.value)}
                       id={`login-2fa-code-${fieldId}`}
-                      name="2fa_code"
+                      name="totp"
                       type="text"
                       autoComplete="one-time-code"
                       inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={8}
                       placeholder="000000"
                       disabled={isLoading}
                     />

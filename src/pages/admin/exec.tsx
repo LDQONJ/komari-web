@@ -459,14 +459,25 @@ const ExecContent = () => {
                         )}
                     </div>
 
-                    <Flex justify="end" gap="2">
+                    <Flex justify="end" align="center" gap="2">
                         {twoFaEnabled ? (
                             <TextField.Root
-                                className="w-32"
-                                type="number"
-                                placeholder="2FA"
+                                id="exec-2fa-code"
+                                name="totp"
+                                type="text"
+                                inputMode="numeric"
+                                autoComplete="one-time-code"
+                                pattern="[0-9]*"
+                                maxLength={8}
+                                placeholder={t("account.2fa_otp_input_prompt", "2FA / TOTP")}
+                                className="w-36 font-mono text-center tracking-wider"
                                 value={twoFaCode}
-                                onChange={(e) => setTwoFaCode((e.target as HTMLInputElement).value)}
+                                onChange={(e) => setTwoFaCode(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && !executing && command.trim() && selectedNodes.length > 0 && twoFaCode.trim()) {
+                                        executeCommand();
+                                    }
+                                }}
                             />
                         ) : null}
                         <Button
