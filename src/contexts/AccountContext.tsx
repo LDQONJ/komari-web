@@ -1,4 +1,5 @@
 import React from "react";
+import { ApiError, api } from "@/lib/http";
 
 // 账户数据类型
 type Account = {
@@ -28,29 +29,32 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState<Error | null>(null);
     
-    const refresh = async () => {
+    const refresh = React.useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-        const response = await fetch("/api/me");
-        if (!response.ok) {
-            throw new Error("Failed to fetch account data");
-        }
-        const data: Account = await response.json();
+        const data = await api
+            .get<Account>("/api/me")
+            .catch((e) => { throw e instanceof ApiError ? new Error("Failed to fetch account data") : e; });
         setAccount(data);
         } catch (err) {
         setError(err as Error);
         } finally {
         setLoading(false);
         }
-    };
-    
-    React.useEffect(() => {
-        refresh();
     }, []);
     
+    React.useEffect(() => {
+        void refresh();
+    }, [refresh]);
+
+    const contextValue = React.useMemo(
+        () => ({ account, loading, error, refresh }),
+        [account, loading, error, refresh],
+    );
+    
     return (
-        <AccountContext.Provider value={{ account, loading, error, refresh }}>
+        <AccountContext.Provider value={contextValue}>
         {children}
         </AccountContext.Provider>
     );

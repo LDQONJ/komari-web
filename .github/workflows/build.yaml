@@ -1,43 +1,66 @@
-name: Build and Release Assets
+name: Build and Release Dist
 
 on:
+  push:
+    tags:
+      - "[0-9]*.[0-9]*.[0-9]*"
+      - "v[0-9]*"
   release:
-    types: [created] # 仅在创建新的 Release 时触发
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build and publish (defaults to ref name)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
 
 jobs:
-  build_and_upload: # 合并了构建和上传的作业
+  build_and_upload:
+    name: Build and Publish Frontend Dist
     runs-on: ubuntu-latest
-    permissions: # 需要权限来写入 Release 附件
-      contents: write # 或者 specific permissions like `release: write` if more granular control is needed. For `actions/upload-release-asset` this is often sufficient.
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build project
         run: npm run build
-        
-      - name: Archive build artifacts
-        run: |
-          cd dist
-          zip -r ../dist-release.zip .
-          cd ..
-        # 将 dist 文件夹压缩为 dist-release.zip
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+      - name: Zip dist folder
+        run: |
+          if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
+            echo "Error: dist directory is missing or empty after build."
+            exit 1
+          fi
+          (cd dist && zip -r ../dist-release.zip .)
+
+      - name: Ensure Release and Upload Asset
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }} # 获取上传到 Release 的 URL
-          asset_path: ./dist-release.zip # 要上传的文件的路径
-          asset_name: dist-release.zip # 在 Release 中显示的文件名
-          asset_content_type: application/zip # 文件类型
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -eu
+          if [ "$EVENT_NAME" = "release" ]; then
+            TAG="$RELEASE_TAG"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          else
+            TAG="$REF_NAME"
+          fi
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "$TAG" --generate-notes
+          fi
+          gh release upload "$TAG" dist-release.zip --clobber

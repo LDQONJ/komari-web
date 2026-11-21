@@ -1,7 +1,13 @@
-import { useState, useRef } from "react";
-import { Button, Dialog, Text, TextField } from "@radix-ui/themes";
-import { LoaderCircle, LogIn } from "lucide-react";
+import { useRef } from "react";
+import Loading from "@/components/loading";
+import { Button, Dialog, Flex, Text } from "@radix-ui/themes";
+import { LogIn } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { AnimatePresence } from "motion/react";
+import { GapCollapse } from "@/components/GapCollapse";
+import { SPACE } from "@/lib/spacing";
+import LoginField from "@/components/auth/LoginField";
+import { useLogin } from "@/components/auth/useLogin";
 
 export type RestrictedAuthStatus = {
   oauth_enabled: boolean;
@@ -9,11 +15,6 @@ export type RestrictedAuthStatus = {
   password_login_enabled: boolean;
   logged_in: boolean;
   username?: string;
-};
-
-type APIResponse = {
-  status: "success" | "error";
-  message?: string;
 };
 
 type RestrictedLoginDialogProps = {
@@ -28,61 +29,25 @@ export default function RestrictedLoginDialog({
   requestFailedKey = "login.request_failed",
 }: RestrictedLoginDialogProps) {
   const { t } = useTranslation();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [twoFactor, setTwoFactor] = useState("");
-  const [requireTwoFactor, setRequireTwoFactor] = useState(() => {
-    try {
-      return localStorage.getItem("komari_has_2fa") === "true";
-    } catch {
-      return false;
-    }
-  });
   const twoFactorInputRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  const login = async () => {
-    setBusy(true);
-    setError("");
-    try {
-      const trimmedTwoFa = twoFactor.trim();
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          password,
-          ...(trimmedTwoFa ? { "2fa_code": trimmedTwoFa } : {}),
-        }),
-      });
-      const payload = (await response.json()) as APIResponse;
-      if (!response.ok) {
-        if (payload.message === "2FA code is required") {
-          setRequireTwoFactor(true);
-          try {
-            localStorage.setItem("komari_has_2fa", "true");
-          } catch {}
-          setTimeout(() => twoFactorInputRef.current?.focus(), 50);
-        }
-        throw new Error(payload.message || `HTTP ${response.status}`);
-      }
-      if (trimmedTwoFa) {
-        try {
-          localStorage.setItem("komari_has_2fa", "true");
-        } catch {}
-      }
-      await onAuthenticated();
-    } catch (loginError) {
-      setError(
-        loginError instanceof Error
-          ? loginError.message
-          : t(requestFailedKey),
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
+  const {
+    username,
+    setUsername,
+    password,
+    setPassword,
+    twoFactor,
+    setTwoFactor,
+    requireTwoFactor,
+    error,
+    busy,
+    login,
+  } = useLogin({
+    onSuccess: onAuthenticated,
+    requestFailedKey,
+    onRequireTwoFactor: () => {
+      setTimeout(() => twoFactorInputRef.current?.focus(), 50);
+    },
+  });
 
   return (
     <Dialog.Root open={auth !== null && !auth.logged_in}>
@@ -94,87 +59,84 @@ export default function RestrictedLoginDialog({
       >
         <Dialog.Title>{t("login.title")}</Dialog.Title>
         <Dialog.Description>{t("login.desc")}</Dialog.Description>
+        {/* 说明 → 表单 section；字段之间 block；字段区 → 提交按钮 section；提交 → OAuth group */}
+        <Flex direction="column" gap="2" mt="5">
         {auth?.password_login_enabled && (
           <form
-            className="km-restricted-login-form mt-5 space-y-3"
+            className="km-restricted-login-form flex flex-col gap-km-section"
             onSubmit={(event) => {
               event.preventDefault();
               void login();
             }}
           >
-            <label className="block">
-              <Text as="div" size="2" weight="bold" mb="1">
-                {t("login.username")}
-              </Text>
-              <TextField.Root
-                id="restricted-login-username"
-                name="username"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                autoComplete="username"
+            <Flex direction="column" gap="4">
+            <LoginField
+              label={t("login.username")}
+              id="restricted-login-username"
+              name="username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
+              autoFocus
+              disabled={busy}
+            />
+            <LoginField
+              label={t("login.password")}
+              id="restricted-login-password"
+              name="password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+              disabled={busy}
+            />
+            {/* 条件字段/错误：高度与所在栈的 gap 4（SPACE.block）一起展开，提交按钮不被顶一下 */}
+            <AnimatePresence initial={false}>
+            {requireTwoFactor && (
+              <GapCollapse key="restricted-2fa" gap={SPACE.block}>
+              <LoginField
+                ref={twoFactorInputRef}
+                label={t("login.two_factor")}
+                id="restricted-login-2fa-code"
+                name="totp"
+                type="text"
+                value={twoFactor}
+                onChange={(event) => setTwoFactor(event.target.value)}
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={8}
+                placeholder="000000"
                 autoFocus
                 disabled={busy}
               />
-            </label>
-            <label className="block">
-              <Text as="div" size="2" weight="bold" mb="1">
-                {t("login.password")}
-              </Text>
-              <TextField.Root
-                id="restricted-login-password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                autoComplete="current-password"
-                disabled={busy}
-              />
-            </label>
-            {requireTwoFactor && (
-              <label className="block">
-                <Text as="div" size="2" weight="bold" mb="1">
-                  {t("login.two_factor")}
-                </Text>
-                <TextField.Root
-                  ref={twoFactorInputRef}
-                  id="restricted-login-2fa-code"
-                  name="totp"
-                  type="text"
-                  value={twoFactor}
-                  onChange={(event) => setTwoFactor(event.target.value)}
-                  autoComplete="one-time-code"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={8}
-                  placeholder="000000"
-                  autoFocus
-                  disabled={busy}
-                />
-              </label>
+              </GapCollapse>
             )}
+            </AnimatePresence>
+            <AnimatePresence initial={false}>
             {error && (
+              <GapCollapse key="restricted-error" gap={SPACE.block}>
               <Text as="div" size="2" color="red">
                 {error}
               </Text>
+              </GapCollapse>
             )}
+            </AnimatePresence>
+            </Flex>
             <Button
               type="submit"
               className="w-full"
               disabled={busy || !username.trim() || !password}
             >
-              {busy ? (
-                <LoaderCircle size={16} className="animate-spin" />
-              ) : (
-                <LogIn size={16} />
-              )}
-              {busy ? t("loading") : t("login.title")}
+              {!busy && <LogIn size={16} />}
+              {busy ? <Loading compact /> : t("login.title")}
             </Button>
           </form>
         )}
         {auth?.oauth_enabled && (
           <Button
             variant={auth.password_login_enabled ? "soft" : "solid"}
-            className="mt-3 w-full"
+            className="w-full"
             onClick={() => {
               window.location.href = "/api/oauth";
             }}
@@ -184,6 +146,7 @@ export default function RestrictedLoginDialog({
             })}
           </Button>
         )}
+        </Flex>
       </Dialog.Content>
     </Dialog.Root>
   );

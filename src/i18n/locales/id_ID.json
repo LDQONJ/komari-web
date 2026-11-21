@@ -1,5 +1,22 @@
 {
+  "adminNavigation": {
+    "operations": "Pemantauan & operasi",
+    "system": "Pengaturan sistem",
+    "security": "Akun & keamanan",
+    "site": "Pengaturan situs",
+    "general": "Pengaturan umum",
+    "login": "Autentikasi",
+    "profile": "Profil",
+    "sessions": "Sesi login",
+    "pluginSettings": "Pengaturan plugin",
+    "events": "Notifikasi peristiwa",
+    "pluginFeatures": "Fitur plugin",
+    "extensions": "Tampilan & plugin"
+  },
   "about": {
+    "dependency_scope": "Dependensi langsung dalam manifes proyek; Web mencakup dependensi pengembangan dan tidak menghitung referensi ke dirinya sendiri. Dependensi transitif tidak termasuk.",
+    "development_dependency": "Dependensi pengembangan (klasifikasi manifes)",
+    "twemoji_notice": "Kode: MIT; gambar: CC-BY-4.0; gambar tidak diubah",
     "ai": "Proses pengembangan proyek Komari didukung oleh alat kecerdasan buatan. Alat-alat ini digunakan untuk menjalankan tugas seperti pembuatan kode, refactoring, dan debugging, untuk meningkatkan efisiensi pengembangan dan kualitas kode. Semua kode dan saran yang dihasilkan oleh AI telah diperiksa dan divalidasi oleh pengembang manusia.",
     "open_source": "Komari bersifat open source berdasarkan lisensi MIT dan dibangun menggunakan perangkat lunak open source berikut:",
     "open_source_title": "Lisensi Perangkat Lunak Open Source",
@@ -561,6 +578,17 @@
       "minimap": "Minimap",
       "no_symbols": "Tidak ada simbol ditemukan",
       "open_terminal_dock": "Buka Terminal di Bawah",
+      "open_with": "Buka Dengan",
+      "open_with_modes": {
+        "audio": "Audio",
+        "error": "Galat",
+        "image": "Gambar",
+        "office": "Office",
+        "pdf": "PDF",
+        "text": "Teks",
+        "too_large": "Terlalu Besar",
+        "video": "Video"
+      },
       "outline": "Garis Besar",
       "paste": "Tempel",
       "preview_failed": "Tidak dapat mempratinjau file ini",
@@ -690,7 +718,33 @@
     "username": "Nama Pengguna"
   },
   "logs": {
-    "title": "Log"
+    "title": "Log",
+    "filter_all_types": "Semua jenis",
+    "filter_type": "Filter menurut jenis",
+    "search_placeholder": "Cari pesan, IP, atau UUID",
+    "per_page": "Per halaman",
+    "showing": "Menampilkan {{from}}–{{to}} dari {{total}}",
+    "no_entries": "Belum ada log",
+    "load_failed": "Gagal memuat log",
+    "empty": "Belum ada log",
+    "no_matches": "Tidak ada log yang cocok",
+    "clear_filters": "Hapus filter",
+    "detail_title": "Detail log",
+    "field_time": "Waktu",
+    "field_ip": "IP",
+    "field_uuid": "UUID",
+    "field_type": "Jenis",
+    "field_message": "Pesan",
+    "type": {
+      "info": "Info",
+      "warn": "Peringatan",
+      "error": "Kesalahan",
+      "login": "Masuk",
+      "logout": "Keluar",
+      "terminal": "Terminal",
+      "renewal": "Perpanjangan",
+      "unknown": "Tidak diketahui"
+    }
   },
   "market": {
     "add_source": "Tambah sumber",
@@ -819,7 +873,7 @@
     "markets": {
       "action": "Jelajahi Plugin",
       "description": "Jelajahi tema di Pasar Tema untuk mengubah tampilan halaman monitoring. Setelah diinstal, kelola di menu 'Tema'.",
-      "plugins_description": "Pasar Plugin menyediakan lebih banyak fitur ekstensi. Setelah diinstal, kelola dan konfigurasikan plugin dari menu 'Plugin'.",
+      "plugins_description": "Pasar Plugin menyediakan lebih banyak fitur plugin. Setelah diinstal, kelola dan konfigurasikan plugin dari menu 'Plugin'.",
       "plugins_title": "Ekstensi Komari dengan Plugin",
       "title": "Jelajahi Pasar Tema"
     },
@@ -873,6 +927,7 @@
     "config": "Konfigurasi",
     "config_no_configurable_plugins": "Tidak ada plugin dengan item konfigurasi",
     "config_no_items": "Plugin ini tidak memiliki item konfigurasi",
+    "config_select_plugin": "Pilih plugin di sebelah kiri untuk dikonfigurasi",
     "config_save_failed": "Gagal menyimpan konfigurasi",
     "config_saved": "Konfigurasi disimpan",
     "config_saved_and_reloaded": "Konfigurasi disimpan dan plugin dimuat ulang",
@@ -904,6 +959,16 @@
     "market_plugins": "plugin",
     "market_refresh_success": "Sumber plugin disegarkan",
     "market_reinstall": "Pasang Ulang",
+    "market_category": "Kategori plugin",
+    "categories": {
+      "notification": "Saluran notifikasi",
+      "monitoring": "Pemantauan dan peringatan",
+      "network": "Jaringan dan domain",
+      "security": "Login dan keamanan",
+      "integration": "Data dan integrasi",
+      "utility": "Sistem dan utilitas",
+      "uncategorized": "Tanpa kategori"
+    },
     "market_search": "Cari plugin...",
     "market_uninstall_success": "Plugin dihapus",
     "market_update_required": "Komari perlu diperbarui",
@@ -1519,6 +1584,8 @@
     "close_tabs": "Tutup",
     "close_to_left": "Kiri",
     "close_to_right": "Kanan",
+    "close_above": "Di atas",
+    "close_below": "Di bawah",
     "color_tab": "Ubah Warna Tab",
     "default_color": "Warna Standar",
     "disconnect": "Terputus",
@@ -1528,7 +1595,23 @@
     "no_active_connection": "Tidak ada koneksi aktif",
     "otp_invalid": "Kode 2FA tidak valid atau kedaluwarsa",
     "reconnecting": "Koneksi terputus. Menyambung ulang...",
+    "recoverable": {
+      "continue": "Lanjutkan di tab baru",
+      "description": "Masih ada {{count}} sesi terminal yang berjalan sejak Anda terakhir keluar:",
+      "none_left": "Sesi yang dapat dipulihkan sudah ditangani atau kedaluwarsa",
+      "server_item": "{{name}}: {{count}} sesi",
+      "terminate": "Akhiri sesi",
+      "terminate_failed": "Gagal mengakhiri sesi, silakan coba lagi",
+      "title": "Sesi yang Dapat Dipulihkan"
+    },
     "rename_tab": "Ubah Nama Tab",
+    "split": {
+      "down": "Bagi ke Bawah",
+      "left": "Bagi ke Kiri",
+      "menu": "Bagi Panel",
+      "right": "Bagi ke Kanan",
+      "up": "Bagi ke Atas"
+    },
     "resource_monitor": {
       "close": "Sembunyikan Monitor Sumber Daya",
       "load_error": "Gagal memuat data waktu nyata",
@@ -1560,7 +1643,37 @@
       "title": "Tab Terminal"
     },
     "title": "Terminal",
-    "title_with_sessions": "Terminal - {{name}} ({{count}} sesi)"
+    "title_with_sessions": "Terminal - {{name}} ({{count}} sesi)",
+    "waiting_agent": "Menunggu agen terhubung...",
+    "settings": {
+      "title": "Pengaturan Terminal",
+      "font_family": "Jenis Huruf",
+      "font_size": "Ukuran Huruf",
+      "decrease_font_size": "Perkecil ukuran huruf",
+      "increase_font_size": "Perbesar ukuran huruf",
+      "convert_eol": "Aktifkan Konversi EOL",
+      "convert_eol_desc": "Perlakukan setiap baris baru (\\n) sebagai carriage return + baris baru (\\r\\n)",
+      "background_url": "URL Gambar / Video Latar",
+      "background_url_placeholder": "https://example.com/bg.webp atau .mp4 / .webm",
+      "clear_background": "Hapus",
+      "background_offset_x": "Pergeseran Horizontal Latar (X)",
+      "decrease_offset_x": "Geser ke kiri",
+      "increase_offset_x": "Geser ke kanan",
+      "background_offset_y": "Pergeseran Vertikal Latar (Y)",
+      "decrease_offset_y": "Geser ke atas",
+      "increase_offset_y": "Geser ke bawah",
+      "background_scale": "Skala Latar",
+      "decrease_scale": "Perkecil latar",
+      "increase_scale": "Perbesar latar",
+      "background_opacity": "Opasitas Latar",
+      "decrease_opacity": "Kurangi opasitas",
+      "increase_opacity": "Tambah opasitas",
+      "background_blur": "Kabur Latar (Blur)",
+      "decrease_blur": "Kurangi kabur",
+      "increase_blur": "Tambah kabur",
+      "refresh_hint": "Pengaturan berlaku seketika; output terminal yang sudah ada atau efek perenderan font tertentu mungkin memerlukan muat ulang halaman.",
+      "reset": "Atur Ulang ke Default"
+    }
   },
   "theme": {
     "active": "Aktif",
@@ -1571,6 +1684,7 @@
     "default_no_config": "Tema bawaan tidak memiliki opsi konfigurasi.",
     "default_preview": "Tidak ada pratinjau untuk tema bawaan",
     "default_theme": "Tema Bawaan",
+    "delete_active_warning": "Tema \"{{themeName}}\" sedang digunakan. Jika dilanjutkan, sistem akan beralih ke tema bawaan dan menghapus tema ini. Tindakan ini tidak dapat dibatalkan.",
     "delete_failed": "Gagal menghapus tema",
     "delete_success": "Tema berhasil dihapus",
     "delete_warning": "Apakah Anda yakin ingin menghapus tema \"{{themeName}}\"? Tindakan ini tidak dapat dibatalkan.",
