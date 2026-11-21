@@ -52,7 +52,7 @@ jobs:
           fi
 
           if [ -z "$tag" ]; then
-            tag="$(gh api repos/komari-monitor/komari/releases --jq '[.[] | select(.draft == false and .prerelease == false)][0].tag_name')"
+            tag="$(gh api repos/LDQONJ/komari/releases --jq '[.[] | select(.draft == false and .prerelease == false)][0].tag_name')"
           fi
 
           if [ -z "$tag" ] || [ "$tag" = "null" ]; then
@@ -60,8 +60,8 @@ jobs:
             exit 1
           fi
 
-          main_url="$(gh release view "$tag" --repo komari-monitor/komari --json url --jq .url)"
-          main_published_at="$(gh release view "$tag" --repo komari-monitor/komari --json publishedAt --jq .publishedAt)"
+          main_url="$(gh release view "$tag" --repo LDQONJ/komari --json url --jq .url)"
+          main_published_at="$(gh release view "$tag" --repo LDQONJ/komari --json publishedAt --jq .publishedAt)"
 
           release_exists="false"
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
@@ -271,7 +271,7 @@ jobs:
           tag="${{ steps.release.outputs.tag }}"
           payload="$(jq -n --arg tag "$tag" '{event_type:"komari-web-release-published", client_payload:{tag:$tag}}')"
           GH_TOKEN="$KOMARI_RELEASE_NOTES_TOKEN" gh api \
-            repos/komari-monitor/komari/dispatches \
+            repos/LDQONJ/komari/dispatches \
             --method POST \
             --input - <<< "$payload"
 
